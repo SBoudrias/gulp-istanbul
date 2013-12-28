@@ -8,26 +8,24 @@ var Report = istanbul.Report;
 var Collector = istanbul.Collector;
 var instrumenter = new istanbul.Instrumenter();
 
-var plugin  = module.exports = function (param) {
 
-  function createMatcher(path) {
-    return function (requestedPath) {
-      return path === requestedPath;
-    };
-  }
+var plugin  = module.exports = function () {
+  var fileMap = {};
 
-  function bypassContent(code) {
-    return function() { return String(code); };
-  }
+  hook.hookRequire(function (path) {
+    return !!fileMap[path];
+  }, function (code, path) {
+    return fileMap[path];
+  });
 
   return es.map(function (file, cb) {
     if (!file.contents instanceof Buffer) {
       return cb(new Error("gulp-istanbul: streams not supported"), undefined);
     }
 
-    instrumenter.instrument(String(file.contents), file.path, function(err, code) {
+    instrumenter.instrument(file.contents.toString(), file.path, function (err, code) {
       if (!err) file.contents = new Buffer(code);
-      hook.hookRequire(createMatcher(file.path), bypassContent(file.contents));
+      fileMap[file.path] = file.contents.toString();
       cb(err, file);
     });
   });
@@ -36,13 +34,16 @@ var plugin  = module.exports = function (param) {
 plugin.writeReports = function (dir) {
   dir = dir || path.join(process.cwd(), "coverage");
 
-  var collector = new Collector();
-  collector.add(global.__coverage__);
+  return es.through(function () {}, function () {
+    var collector = new Collector();
+    collector.add(global.__coverage__);
 
-  var reports = [
-      Report.create("lcov", { dir: dir }),
-      Report.create("text"),
-      Report.create("text-summary")
-  ];
-  reports.forEach(function (report) { report.writeReport(collector, true); })
+    var reports = [
+        Report.create("lcov", { dir: dir }),
+        Report.create("text"),
+        Report.create("text-summary")
+    ];
+    reports.forEach(function (report) { report.writeReport(collector, true); })
+  });
+
 };
