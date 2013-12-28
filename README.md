@@ -1,38 +1,63 @@
-# gulp-istanbul [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][depstat-image]][depstat-url]
+gulp-istanbul [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][depstat-image]][depstat-url]
+===========================
 
-> istanbul plugin for [gulp](https://github.com/wearefractal/gulp)
+[Istanbul](http://gotwarlost.github.io/istanbul/) unit test coverage plugin for [gulp](https://github.com/wearefractal/gulp).
 
-## Usage
+Works on top of any Node.js unit test framework.
 
-First, install `gulp-istanbul` as a development dependency:
+Installation
+---------------
 
 ```shell
 npm install --save-dev gulp-istanbul
 ```
+
+Example
+---------------
 
 Then, add it to your `gulpfile.js`:
 
 ```javascript
 var istanbul = require("gulp-istanbul");
 
-gulp.src("lib/**/*.js")
-  .pipe(istanbul());
+// Set up the file coverage
+gulp.task('cover', function (cb) {
+  gulp.src("lib/**/*.js")
+    .pipe(istanbul());
+    .on('end', cb);
+});
+
+// Run tests and output reports
+gulp.task('test', function () {
+  gulp.run('cover', function () {
+    gulp.src('test/*.js')
+      .pipe(mocha()) // Run any unit test frameworks here
+      .pipe(istanbul.writeReports());
+  });
+});
 ```
 
-## API
+API
+--------------
 
-### istanbul(options)
+### istanbul()
 
-#### options.msg
+Instrument files passes to the stream
+
+### istanbul.writeReports(dir)
+
+Output the reports on stream end
+
+#### dir
 Type: `String`  
-Default: `Hello World`
+Default: `./coverage`
 
-The message you wish to attach to file.
+The folder in which the LCOV report is outputted.
 
+License
+------------
 
-## License
-
-[MIT License](http://en.wikipedia.org/wiki/MIT_License)
+[MIT License](http://en.wikipedia.org/wiki/MIT_License) (c) Simon Boudrias - 2013
 
 [npm-url]: https://npmjs.org/package/gulp-istanbul
 [npm-image]: https://badge.fury.io/js/gulp-istanbul.png
