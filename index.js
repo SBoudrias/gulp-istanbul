@@ -34,8 +34,9 @@ var plugin  = module.exports = function () {
 plugin.writeReports = function (dir) {
   dir = dir || path.join(process.cwd(), "coverage");
 
-  return es.through(function () {}, function () {
+  return es.through(null, function () {
     var collector = new Collector();
+
     collector.add(global.__coverage__);
 
     var reports = [
@@ -43,7 +44,8 @@ plugin.writeReports = function (dir) {
         Report.create("text"),
         Report.create("text-summary")
     ];
-    reports.forEach(function (report) { report.writeReport(collector, true); })
+    reports.forEach(function (report) { report.writeReport(collector, true); });
+    this.emit('end');
   });
 
 };
