@@ -23,7 +23,7 @@ var istanbul = require("gulp-istanbul");
 // Set up the file coverage
 gulp.task('cover', function (cb) {
   gulp.src("lib/**/*.js")
-    .pipe(istanbul());
+    .pipe(istanbul())
     .on('end', cb);
 });
 
