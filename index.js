@@ -1,7 +1,6 @@
+"use strict";
 var es = require("event-stream");
 var path = require("path");
-"use strict";
-
 var istanbul = require("istanbul");
 var hook = istanbul.hook;
 var Report = istanbul.Report;
@@ -46,7 +45,7 @@ plugin.writeReports = function (dir) {
         Report.create("text-summary")
     ];
     reports.forEach(function (report) { report.writeReport(collector, true); });
-    this.emit('end');
+    this.emit("end");
   });
 
 };

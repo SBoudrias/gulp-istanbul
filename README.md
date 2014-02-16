@@ -38,7 +38,7 @@ API
 
 ### istanbul()
 
-Instrument files passes to the stream
+Instrument files passed in the stream.
 
 ### istanbul.writeReports(dir)
 
