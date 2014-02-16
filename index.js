@@ -41,6 +41,7 @@ plugin.writeReports = function (dir) {
 
     var reports = [
         Report.create("lcov", { dir: dir }),
+        Report.create("json", { dir: dir }),
         Report.create("text"),
         Report.create("text-summary")
     ];

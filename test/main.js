@@ -96,6 +96,7 @@ describe('gulp-istanbul', function () {
         .on('end', function () {
           assert.ok(fs.existsSync('./coverage'));
           assert.ok(fs.existsSync('./coverage/lcov.info'));
+          assert.ok(fs.existsSync('./coverage/coverage-final.json'));
           process.stdout.write = out;
           done();
         });
@@ -109,6 +110,7 @@ describe('gulp-istanbul', function () {
         .on('end', function () {
           assert.ok(fs.existsSync('./cov-foo'));
           assert.ok(fs.existsSync('./cov-foo/lcov.info'));
+          assert.ok(fs.existsSync('./cov-foo/coverage-final.json'));
           process.stdout.write = out;
           done();
         });
