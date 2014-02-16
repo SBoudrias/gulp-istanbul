@@ -46,13 +46,13 @@ Instrument files passes to the stream
 
 ### istanbul.writeReports(dir)
 
-Output the reports on stream end
+Create the reports LCOV and json on stream end
 
 #### dir
 Type: `String`  
 Default: `./coverage`
 
-The folder in which the LCOV report is outputted.
+The folder in which the reports are to be outputted.
 
 License
 ------------

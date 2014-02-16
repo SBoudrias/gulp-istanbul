@@ -24,15 +24,13 @@
     "test": "mocha -R spec"
   },
   "dependencies": {
-    "event-stream": "*",
-    "istanbul": "~0.2.2"
+    "istanbul": "~0.2.2",
+    "event-stream": "~3.1.0"
   },
   "devDependencies": {
-    "mocha": "~1.14.0",
-    "should": "~2.1.0",
     "gulp-util": "~2.2.0",
-    "gulp-mocha": "~0.1.1",
-    "gulp": "~3.2.1",
+    "gulp-mocha": "~0.4.1",
+    "gulp": "~3.5.2",
     "rimraf": "~2.2.5"
   },
   "licenses": [
