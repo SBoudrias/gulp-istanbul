@@ -2,7 +2,6 @@
 'use strict';
 
 var fs = require('fs');
-var es = require('event-stream');
 var assert = require('assert');
 var rimraf = require('rimraf');
 var gutil = require('gulp-util');
@@ -51,12 +50,6 @@ describe('gulp-istanbul', function () {
         done();
       });
 
-      this.stream.on('data', function (newFile) {
-        newFile.contents.pipe(es.wait(function(err, data) {
-          done(err);
-        }));
-      });
-
       this.stream.write(srcFile);
       this.stream.end();
     });
@@ -64,10 +57,13 @@ describe('gulp-istanbul', function () {
 
   describe('istanbul.writeReports()', function () {
     beforeEach(function (done) {
+
+      istanbul = require('../');
+
       // set up coverage
       gulp.src([ 'test/fixtures/lib/*.js' ])
-        .pipe(istanbul())
-        .on('end', function () { done(); });
+        .on('end', done)
+        .pipe(istanbul());
     });
 
     after(function () {
@@ -81,6 +77,7 @@ describe('gulp-istanbul', function () {
         .pipe(istanbul.writeReports());
 
       process.stdout.write = function (str) {
+
         if (str.indexOf('==== Coverage summary ====') >= 0) {
           process.stdout.write = out;
           done();

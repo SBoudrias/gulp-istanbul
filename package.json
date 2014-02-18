@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "istanbul": "~0.2.2",
-    "event-stream": "~3.1.0"
+    "through2": "~0.4.1"
   },
   "devDependencies": {
     "gulp-util": "~2.2.0",
