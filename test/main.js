@@ -99,7 +99,7 @@ describe('gulp-istanbul', function () {
         });
     });
 
-    it('allow specifying report output dir', function (done) {
+    it('allow specifying report output dir (legacy way)', function (done) {
       process.stdout.write = function () {};
       gulp.src([ 'test/fixtures/test/*.js' ])
         .pipe(mocha({ reporter: 'spec' }))
@@ -111,6 +111,37 @@ describe('gulp-istanbul', function () {
           process.stdout.write = out;
           done();
         });
+    });
+
+    it('allow specifying report output dir', function (done) {
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports({dir: 'cov-foo'}))
+        .on('end', function () {
+          assert.ok(fs.existsSync('./cov-foo'));
+          assert.ok(fs.existsSync('./cov-foo/lcov.info'));
+          assert.ok(fs.existsSync('./cov-foo/coverage-final.json'));
+          process.stdout.write = out;
+          done();
+        });
+    });
+
+
+    it('allow specifying report output formats', function (done) {
+      process.stdout.write = function () {};
+      rimraf('./cov-foo', function () {
+        gulp.src([ 'test/fixtures/test/*.js' ])
+          .pipe(mocha({ reporter: 'spec' }))
+          .pipe(istanbul.writeReports({dir: 'cov-foo', reporters: ['cobertura']}))
+          .on('end', function () {
+            assert.ok(fs.existsSync('./cov-foo'));
+            assert(!fs.existsSync('./cov-foo/lcov.info'));
+            assert.ok(fs.existsSync('./cov-foo/cobertura-coverage.xml'));
+            process.stdout.write = out;
+            done();
+          });
+      });
     });
   });
 });
