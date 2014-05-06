@@ -7,7 +7,6 @@ var Report = istanbul.Report;
 var Collector = istanbul.Collector;
 var instrumenter = new istanbul.Instrumenter();
 
-
 var plugin  = module.exports = function () {
   var fileMap = {};
 
@@ -33,14 +32,16 @@ var plugin  = module.exports = function () {
 };
 
 plugin.writeReports = function (opts) {
-  if (arguments.length == 1 && typeof(arguments[0]) === 'string' ) {
-    opts = {dir: opts};
+  if (arguments.length === 1 && typeof(arguments[0]) === 'string' ) {
+    opts = { dir: opts };
   } else if (!opts) {
     opts = {};
   }
-  if (!opts.dir) { opts.dir = path.join(process.cwd(), "coverage"); }
+  if (!opts.dir) {
+    opts.dir = path.join(process.cwd(), "coverage"); 
+  }
   if (!opts.reporters) { 
-    opts.reporters = ["lcov", "json", "text", "text-summary"]; 
+    opts.reporters = [ "lcov", "json", "text", "text-summary" ]; 
   }
   if (!opts.reportOpts) {
     opts.reportOpts = { dir: opts.dir };
