@@ -66,9 +66,12 @@ describe('gulp-istanbul', function () {
         .pipe(istanbul());
     });
 
-    after(function () {
+    afterEach(function () {
       rimraf.sync('coverage');
       rimraf.sync('cov-foo');
+      rimraf.sync('cov-bar');
+      rimraf.sync('cov-baz');
+      process.stdout.write = out;
     });
 
     it('output coverage report', function (done) {
@@ -79,7 +82,6 @@ describe('gulp-istanbul', function () {
       process.stdout.write = function (str) {
 
         if (str.indexOf('==== Coverage summary ====') >= 0) {
-          process.stdout.write = out;
           done();
         }
       }
@@ -94,12 +96,11 @@ describe('gulp-istanbul', function () {
           assert.ok(fs.existsSync('./coverage'));
           assert.ok(fs.existsSync('./coverage/lcov.info'));
           assert.ok(fs.existsSync('./coverage/coverage-final.json'));
-          process.stdout.write = out;
           done();
         });
     });
 
-    it('allow specifying report output dir', function (done) {
+    it('allow specifying report output dir the old way', function (done) {
       process.stdout.write = function () {};
       gulp.src([ 'test/fixtures/test/*.js' ])
         .pipe(mocha({ reporter: 'spec' }))
@@ -108,9 +109,46 @@ describe('gulp-istanbul', function () {
           assert.ok(fs.existsSync('./cov-foo'));
           assert.ok(fs.existsSync('./cov-foo/lcov.info'));
           assert.ok(fs.existsSync('./cov-foo/coverage-final.json'));
-          process.stdout.write = out;
           done();
         });
+    });
+
+    it('allow specifying report output dir the new way', function (done) {
+      process.stdout.write = function () {};
+      var dir = 'cov-bar';
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports({dir:dir}))
+        .on('end', function () {
+          assert.ok(fs.existsSync('./'+dir));
+          assert.ok(fs.existsSync('./'+dir+'/lcov.info'));
+          assert.ok(fs.existsSync('./'+dir+'/coverage-final.json'));
+          done();
+        });
+    });
+
+    it('allow specifying report output dir and reports', function (done) {
+      process.stdout.write = function () {};
+      var dir = 'cov-baz';
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports({dir:dir, reports: ['json']}))
+        .on('end', function () {
+          assert.ok(fs.existsSync('./'+dir));
+          assert.ok(fs.existsSync('./'+dir+'/coverage-final.json'));
+          done();
+        });
+    });
+
+    it('throws when specifying invalid reporters', function (done) {
+      var actualErr;
+      try {
+        istanbul.writeReports({reports:['not-a-valid-reporter']});
+      } catch (err) {
+        actualErr = err;
+      }
+      assert.ok(actualErr.plugin === 'gulp-istanbul');
+      done();
     });
   });
 });
