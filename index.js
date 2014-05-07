@@ -1,11 +1,17 @@
 "use strict";
+
 var through = require('through2').obj;
 var path = require("path");
 var istanbul = require("istanbul");
+var gutil = require('gulp-util');
+var _ = require('lodash');
 var hook = istanbul.hook;
 var Report = istanbul.Report;
 var Collector = istanbul.Collector;
 var instrumenter = new istanbul.Instrumenter();
+var PluginError = gutil.PluginError;
+
+var PLUGIN_NAME = 'gulp-istanbul';
 
 
 var plugin  = module.exports = function () {
@@ -32,28 +38,41 @@ var plugin  = module.exports = function () {
   });
 };
 
-plugin.writeReports = function (dir) {
-  dir = dir || path.join(process.cwd(), "coverage");
+plugin.writeReports = function (opt) {
+  if (typeof opt === "string") {
+    opt = {dir: opt};
+  } else if (typeof opt !== 'object') {
+    opt = {};
+  }
+
+  if (!opt.dir) {
+    opt.dir = path.join(process.cwd(), "coverage");
+  }
+  if (!opt.reports || !opt.reports.length) {
+    opt.reports = ["lcov", "json", "text", "text-summary"];
+  }
+  if (!opt.reportOptions) {
+    opt.reportOptions = {dir: opt.dir};
+  }
+  var validReports = Report.getReportList();
+
+  var invalid = _.difference(opt.reports, validReports);
+  if (invalid.length) {
+    // throw before we start -- fail fast
+    throw new PluginError(PLUGIN_NAME, 'Invalid reporters: '+invalid.join(', '));
+  }
+
+  opt.reporters = opt.reports.map(function (r) {
+    return Report.create(r, opt.reportOptions);
+  });
 
   var cover = through();
 
   cover.on('end', function() {
-
     var collector = new Collector();
-
     collector.add(global.__coverage__);
-
-
-    var reports = [
-        Report.create("lcov", { dir: dir }),
-        Report.create("json", { dir: dir }),
-        Report.create("text"),
-        Report.create("text-summary")
-    ];
-    reports.forEach(function (report) { report.writeReport(collector, true); });
-
+    opt.reporters.forEach(function (report) { report.writeReport(collector, true); });
   }).resume();
 
   return cover;
-
 };
