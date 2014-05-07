@@ -1,4 +1,4 @@
-/*global describe, it*/
+/*global describe, it, beforeEach, after */
 'use strict';
 
 var fs = require('fs');
@@ -29,7 +29,7 @@ describe('gulp-istanbul', function () {
       this.stream.on('data', function (file) {
         assert.equal(file.path, libFile.path);
         assert.ok(file.contents.toString().indexOf('__cov_') >= 0);
-        assert.ok(file.contents.toString().indexOf('__coverage__') >= 0);
+        assert.ok(file.contents.toString().indexOf('$$cov_') >= 0);
         done();
       });
 
