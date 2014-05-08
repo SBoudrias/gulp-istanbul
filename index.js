@@ -45,6 +45,7 @@ plugin.writeReports = function (dir) {
 
 
     var reports = [
+        Report.create("html", { dir: dir }),
         Report.create("lcov", { dir: dir }),
         Report.create("json", { dir: dir }),
         Report.create("text"),
