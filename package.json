@@ -21,6 +21,7 @@
     "url": "git://github.com/SBoudrias/gulp-istanbul.git"
   },
   "scripts": {
+    "pretest": "node node_modules/jshint/bin/jshint index.js ./test/.",
     "test": "mocha -R spec"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "gulp-util": "~2.2.0",
     "gulp-mocha": "~0.4.1",
     "gulp": "~3.5.2",
+    "jshint": "^2.5.0",
     "rimraf": "~2.2.5"
   },
   "licenses": [
