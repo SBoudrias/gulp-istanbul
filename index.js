@@ -9,7 +9,6 @@ var Report = istanbul.Report;
 var Collector = istanbul.Collector;
 var instrumenter = new istanbul.Instrumenter({ coverageVariable:COVERAGE_VARIABLE });
 
-
 var plugin  = module.exports = function () {
   var fileMap = {};
 
@@ -34,8 +33,21 @@ var plugin  = module.exports = function () {
   });
 };
 
-plugin.writeReports = function (dir) {
-  dir = dir || path.join(process.cwd(), "coverage");
+plugin.writeReports = function (opts) {
+  if (arguments.length === 1 && typeof(arguments[0]) === 'string' ) {
+    opts = { dir: opts };
+  } else if (!opts) {
+    opts = {};
+  }
+  if (!opts.dir) {
+    opts.dir = path.join(process.cwd(), "coverage"); 
+  }
+  if (!opts.reporters) { 
+    opts.reporters = [ "lcov", "json", "text", "text-summary" ]; 
+  }
+  if (!opts.reportOpts) {
+    opts.reportOpts = { dir: opts.dir };
+  }
 
   var cover = through();
 
@@ -46,13 +58,10 @@ plugin.writeReports = function (dir) {
     collector.add(global[COVERAGE_VARIABLE]);
 
 
-    var reports = [
-        Report.create("lcov", { dir: dir }),
-        Report.create("json", { dir: dir }),
-        Report.create("text"),
-        Report.create("text-summary")
-    ];
-    reports.forEach(function (report) { report.writeReport(collector, true); });
+    opts.reporters.forEach(function (type) { 
+      var report = Report.create(type, opts.reportOpts)
+      report.writeReport(collector, true); 
+    });
 
     delete global[COVERAGE_VARIABLE];
 

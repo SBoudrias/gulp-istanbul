@@ -69,7 +69,7 @@ describe('gulp-istanbul', function () {
         .pipe(istanbul());
     });
 
-    after(function () {
+    afterEach(function () {
       rimraf.sync('coverage');
       rimraf.sync('cov-foo');
     });
@@ -100,7 +100,7 @@ describe('gulp-istanbul', function () {
         });
     });
 
-    it('allow specifying report output dir', function (done) {
+    it('allow specifying report output dir (legacy way)', function (done) {
       process.stdout.write = function () {};
       gulp.src([ 'test/fixtures/test/*.js' ])
         .pipe(mocha({ reporter: 'spec' }))
@@ -112,5 +112,66 @@ describe('gulp-istanbul', function () {
           done();
         });
     });
+
+    it('allow specifying report output dir', function (done) {
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports({ dir: 'cov-foo' }))
+        .on('end', function () {
+          assert.ok(fs.existsSync('./cov-foo'));
+          assert.ok(fs.existsSync('./cov-foo/lcov.info'));
+          assert.ok(fs.existsSync('./cov-foo/coverage-final.json'));
+          process.stdout.write = out;
+          done();
+        });
+    });
+
+    it('allow specifying report output formats', function (done) {
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(istanbul.writeReports({dir: 'cov-foo', reporters: ['cobertura']}))
+        .on('end', function () {
+          assert.ok(fs.existsSync('./cov-foo'));
+          assert.ok(!fs.existsSync('./cov-foo/lcov.info'));
+          assert.ok(fs.existsSync('./cov-foo/cobertura-coverage.xml'));
+          process.stdout.write = out;
+          done();
+        });
+    });
+
+    xit('rejects unsupported report formats with an error', function (done) {
+      //process.stdout.write = function () {};
+      try {
+        gulp.on('error', function (err) {
+          assert.ok(err);
+          done();
+        });
+        gulp.src([ 'test/fixtures/test/*.js' ])
+          .pipe(mocha({ reporter: 'spec' }))
+          .pipe(
+            istanbul
+              .writeReports({dir: 'cov-foo', reporters: ['fake-format']})
+              .on('error', function (err) {
+                assert.ok(err);
+                done();
+              })
+          )
+          .on('end', function () {
+            //process.stdout.write = out;
+            assert.fail('an error should have been thrown for invalid report format');
+            done();
+          })
+          .on('error', function (err) {
+            assert.ok(err);
+            done();
+          });
+      } catch (err) {
+        assert.ok('err');
+        done();
+      }
+    });
+
   });
 });
