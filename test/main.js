@@ -13,6 +13,10 @@ var out = process.stdout.write.bind(process.stdout);
 
 describe('gulp-istanbul', function () {
 
+  afterEach(function () {
+    process.stdout.write = out; // put it back even if test fails
+  });
+
   var libFile = new gutil.File({
     path: 'test/fixtures/lib/add.js',
     cwd: 'test/',
@@ -79,7 +83,6 @@ describe('gulp-istanbul', function () {
       process.stdout.write = function (str) {
 
         if (str.indexOf('==== Coverage summary ====') >= 0) {
-          process.stdout.write = out;
           done();
         }
       }
@@ -94,7 +97,6 @@ describe('gulp-istanbul', function () {
           assert.ok(fs.existsSync('./coverage'));
           assert.ok(fs.existsSync('./coverage/lcov.info'));
           assert.ok(fs.existsSync('./coverage/coverage-final.json'));
-          process.stdout.write = out;
           done();
         });
     });
@@ -108,7 +110,6 @@ describe('gulp-istanbul', function () {
           assert.ok(fs.existsSync('./cov-foo'));
           assert.ok(fs.existsSync('./cov-foo/lcov.info'));
           assert.ok(fs.existsSync('./cov-foo/coverage-final.json'));
-          process.stdout.write = out;
           done();
         });
     });
