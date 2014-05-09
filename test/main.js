@@ -1,4 +1,3 @@
-/*global describe, it, beforeEach, after */
 'use strict';
 
 var fs = require('fs');
@@ -85,7 +84,7 @@ describe('gulp-istanbul', function () {
         if (str.indexOf('==== Coverage summary ====') >= 0) {
           done();
         }
-      }
+      };
     });
 
     it('create coverage report', function (done) {
