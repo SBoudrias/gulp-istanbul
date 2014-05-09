@@ -37,6 +37,17 @@ var plugin  = module.exports = function (opts) {
   });
 };
 
+plugin.summarizeCoverage = function (opts) {
+  if (!opts) opts = {};
+  if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
+
+  if (!global[opts.coverageVariable]) throw new Error('no coverage data found, run tests then call #summarizeCoverage then call #writeReports');
+
+  var collector = new Collector();
+  collector.add(global[opts.coverageVariable]);
+  return istanbul.utils.summarizeCoverage(collector.getFinalCoverage());
+};
+
 plugin.writeReports = function (opts) {
   if (typeof opts === 'string') opts = { dir: opts };
   if (!opts) opts = {};
