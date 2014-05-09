@@ -1,11 +1,13 @@
 "use strict";
+var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
+
 var through = require('through2').obj;
 var path = require("path");
 var istanbul = require("istanbul");
 var hook = istanbul.hook;
 var Report = istanbul.Report;
 var Collector = istanbul.Collector;
-var instrumenter = new istanbul.Instrumenter();
+var instrumenter = new istanbul.Instrumenter({ coverageVariable:COVERAGE_VARIABLE });
 
 
 var plugin  = module.exports = function () {
@@ -41,7 +43,7 @@ plugin.writeReports = function (dir) {
 
     var collector = new Collector();
 
-    collector.add(global.__coverage__);
+    collector.add(global[COVERAGE_VARIABLE]);
 
 
     var reports = [
@@ -51,6 +53,8 @@ plugin.writeReports = function (dir) {
         Report.create("text-summary")
     ];
     reports.forEach(function (report) { report.writeReport(collector, true); });
+
+    delete global[COVERAGE_VARIABLE];
 
   }).resume();
 
