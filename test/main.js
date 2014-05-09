@@ -113,4 +113,35 @@ describe('gulp-istanbul', function () {
         });
     });
   });
+
+  describe('with defined coverageVariable option', function () {
+    beforeEach(function () {
+      istanbul = require('../');
+    });
+
+    afterEach(function () {
+      rimraf.sync('coverage');
+    });
+
+    it('allow specifying coverage variable', function (done) {
+      process.stdout.write = function () {};
+
+      var coverageVariable = 'CUSTOM_COVERAGE_VARIABLE';
+
+      // set up coverage
+      gulp.src([ 'test/fixtures/lib/*.js' ])
+        .pipe(istanbul({ coverageVariable: coverageVariable }))
+        .on('finish', function () {
+          gulp.src([ 'test/fixtures/test/*.js' ])
+            .pipe(mocha({ reporter: 'spec' }))
+            .pipe(istanbul.writeReports({ coverageVariable: coverageVariable }))
+            .on('end', function () {
+              assert.ok(fs.existsSync('./coverage'));
+              assert.ok(fs.existsSync('./coverage/lcov.info'));
+              assert.ok(fs.existsSync('./coverage/coverage-final.json'));
+              done();
+            });
+        });
+    });
+  });
 });

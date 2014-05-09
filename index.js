@@ -7,10 +7,11 @@ var istanbul = require("istanbul");
 var hook = istanbul.hook;
 var Report = istanbul.Report;
 var Collector = istanbul.Collector;
-var instrumenter = new istanbul.Instrumenter({ coverageVariable:COVERAGE_VARIABLE });
 
 
-var plugin  = module.exports = function () {
+var plugin  = module.exports = function (opts) {
+  if (!opts) opts = {};
+  if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
   var fileMap = {};
 
   hook.hookRequire(function (path) {
@@ -18,6 +19,8 @@ var plugin  = module.exports = function () {
   }, function (code, path) {
     return fileMap[path];
   });
+
+  var instrumenter = new istanbul.Instrumenter({ coverageVariable: opts.coverageVariable });
 
   return through(function (file, enc, cb) {
     if (!file.contents instanceof Buffer) {
@@ -34,8 +37,11 @@ var plugin  = module.exports = function () {
   });
 };
 
-plugin.writeReports = function (dir) {
-  dir = dir || path.join(process.cwd(), "coverage");
+plugin.writeReports = function (opts) {
+  if (typeof opts === 'string') opts = { dir: opts };
+  if (!opts) opts = {};
+  if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
+  if (!opts.dir) opts.dir = path.join(process.cwd(), "coverage");
 
   var cover = through();
 
@@ -43,18 +49,18 @@ plugin.writeReports = function (dir) {
 
     var collector = new Collector();
 
-    collector.add(global[COVERAGE_VARIABLE]);
+    collector.add(global[opts.coverageVariable]);
 
 
     var reports = [
-        Report.create("lcov", { dir: dir }),
-        Report.create("json", { dir: dir }),
+        Report.create("lcov", { dir: opts.dir }),
+        Report.create("json", { dir: opts.dir }),
         Report.create("text"),
         Report.create("text-summary")
     ];
     reports.forEach(function (report) { report.writeReport(collector, true); });
 
-    delete global[COVERAGE_VARIABLE];
+    delete global[opts.coverageVariable];
 
   }).resume();
 
