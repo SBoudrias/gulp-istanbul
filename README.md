@@ -40,6 +40,20 @@ API
 
 Instrument files passed in the stream.
 
+### istanbul.summarizeCoverage()
+
+get coverage summary details
+
+Returns: `object`
+```json
+{
+  lines: { total: 4, covered: 2, skipped: 0, pct: 50 },
+  statements: { total: 4, covered: 2, skipped: 0, pct: 50 },
+  functions: { total: 2, covered: 0, skipped: 0, pct: 0 },
+  branches: { total: 0, covered: 0, skipped: 0, pct: 100 }
+}
+```
+
 ### istanbul.writeReports(dir)
 
 Create the reports (LCOV, json and visual output) once stream end.

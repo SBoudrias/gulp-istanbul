@@ -58,6 +58,33 @@ describe('gulp-istanbul', function () {
     });
   });
 
+  describe('istanbul.summarizeCoverage()', function () {
+    beforeEach(function (done) {
+
+      istanbul = require('../');
+
+      // set up coverage
+      gulp.src([ 'test/fixtures/lib/*.js' ])
+        .pipe(istanbul())
+        .on('finish', function () {
+          process.stdout.write = function () {};
+          gulp.src([ 'test/fixtures/test/*.js' ])
+            .pipe(mocha({ reporter: 'spec' }))
+            .on('finish', done);
+        });
+    });
+
+    it('gets statistics about the test run', function (done) {
+      var data = istanbul.summarizeCoverage();
+      assert.ok(data.lines.pct === 50);
+      assert.ok(data.statements.pct === 50);
+      assert.ok(data.functions.pct === 0);
+      assert.ok(data.branches.pct === 100);
+      done();
+    });
+
+  });
+
   describe('istanbul.writeReports()', function () {
     beforeEach(function (done) {
 
