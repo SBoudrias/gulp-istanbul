@@ -1,12 +1,17 @@
 "use strict";
-var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
 var through = require('through2').obj;
 var path = require("path");
 var istanbul = require("istanbul");
+var gutil = require('gulp-util');
+var _ = require('lodash');
 var hook = istanbul.hook;
 var Report = istanbul.Report;
 var Collector = istanbul.Collector;
+var PluginError = gutil.PluginError;
+
+var PLUGIN_NAME = 'gulp-istanbul';
+var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
 
 var plugin  = module.exports = function (opts) {
@@ -24,7 +29,7 @@ var plugin  = module.exports = function (opts) {
 
   return through(function (file, enc, cb) {
     if (!file.contents instanceof Buffer) {
-      return cb(new Error("gulp-istanbul: streams not supported"), undefined);
+      return cb(new PluginError(PLUGIN_NAME, "streams not supported"), undefined);
     }
 
     instrumenter.instrument(file.contents.toString(), file.path, function (err, code) {
@@ -53,28 +58,29 @@ plugin.writeReports = function (opts) {
   if (!opts) opts = {};
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
   if (!opts.dir) opts.dir = path.join(process.cwd(), "coverage");
+  if (!opts.reporters) opts.reporters = [ "lcov", "json", "text", "text-summary" ];
+  if (!opts.reportOpts) opts.reportOpts = { dir: opts.dir };
+
+  var validReports = Report.getReportList();
+  var invalid = _.difference(opts.reporters, validReports);
+  if (invalid.length) {
+    // throw before we start -- fail fast
+    throw new PluginError(PLUGIN_NAME, 'Invalid reporters: ' + invalid.join(', '));
+  }
+
+  var reporters = opts.reporters.map(function (r) {
+    return Report.create(r, opts.reportOpts);
+  });
 
   var cover = through();
 
-  cover.on('end', function() {
-
+  cover.on('end', function () {
     var collector = new Collector();
-
     collector.add(global[opts.coverageVariable]);
-
-
-    var reports = [
-        Report.create("lcov", { dir: opts.dir }),
-        Report.create("json", { dir: opts.dir }),
-        Report.create("text"),
-        Report.create("text-summary")
-    ];
-    reports.forEach(function (report) { report.writeReport(collector, true); });
-
+    reporters.forEach(function (report) { report.writeReport(collector, true); });
     delete global[opts.coverageVariable];
 
   }).resume();
 
   return cover;
-
 };
