@@ -42,7 +42,7 @@ Instrument files passed in the stream.
 
 #### opt
 Type: `Object` (optional)
-```json
+```js
 {
   coverageVariable: 'someVariable'
 }
