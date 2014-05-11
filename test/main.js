@@ -48,7 +48,7 @@ describe('gulp-istanbul', function () {
         contents: fs.createReadStream('test/fixtures/lib/add.js')
       });
 
-      this.stream.on('error', function(err) {
+      this.stream.on('error', function (err) {
         assert.ok(err);
         done();
       });
@@ -60,9 +60,6 @@ describe('gulp-istanbul', function () {
 
   describe('istanbul.summarizeCoverage()', function () {
     beforeEach(function (done) {
-
-      istanbul = require('../');
-
       // set up coverage
       gulp.src([ 'test/fixtures/lib/*.js' ])
         .pipe(istanbul())
@@ -87,9 +84,6 @@ describe('gulp-istanbul', function () {
 
   describe('istanbul.writeReports()', function () {
     beforeEach(function (done) {
-
-      istanbul = require('../');
-
       // set up coverage
       gulp.src([ 'test/fixtures/lib/*.js' ])
         .on('end', done)
@@ -107,7 +101,6 @@ describe('gulp-istanbul', function () {
         .pipe(istanbul.writeReports());
 
       process.stdout.write = function (str) {
-
         if (str.indexOf('==== Coverage summary ====') >= 0) {
           done();
         }
@@ -168,7 +161,7 @@ describe('gulp-istanbul', function () {
         });
     });
 
-    it('throws when specifying invalid reporters', function (done) {
+    it('throws when specifying invalid reporters', function () {
       var actualErr;
       try {
         istanbul.writeReports({ reporters: ['not-a-valid-reporter'] });
@@ -176,16 +169,11 @@ describe('gulp-istanbul', function () {
         actualErr = err;
       }
       assert.ok(actualErr.plugin === 'gulp-istanbul');
-      done();
     });
 
   });
 
   describe('with defined coverageVariable option', function () {
-    beforeEach(function () {
-      istanbul = require('../');
-    });
-
     afterEach(function () {
       rimraf.sync('coverage');
     });

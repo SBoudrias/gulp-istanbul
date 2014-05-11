@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
 var through = require('through2').obj;
-var path = require("path");
-var istanbul = require("istanbul");
+var path = require('path');
+var istanbul = require('istanbul');
 var gutil = require('gulp-util');
 var _ = require('lodash');
 var hook = istanbul.hook;
@@ -13,9 +13,8 @@ var PluginError = gutil.PluginError;
 var PLUGIN_NAME = 'gulp-istanbul';
 var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
-
 var plugin  = module.exports = function (opts) {
-  if (!opts) opts = {};
+  opts = opts || {};
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
   var fileMap = {};
 
@@ -29,7 +28,7 @@ var plugin  = module.exports = function (opts) {
 
   return through(function (file, enc, cb) {
     if (!file.contents instanceof Buffer) {
-      return cb(new PluginError(PLUGIN_NAME, "streams not supported"), undefined);
+      return cb(new PluginError(PLUGIN_NAME, 'streams not supported'), undefined);
     }
 
     instrumenter.instrument(file.contents.toString(), file.path, function (err, code) {
@@ -43,10 +42,10 @@ var plugin  = module.exports = function (opts) {
 };
 
 plugin.summarizeCoverage = function (opts) {
-  if (!opts) opts = {};
+  opts = opts || {};
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
 
-  if (!global[opts.coverageVariable]) throw new Error('no coverage data found, run tests then call #summarizeCoverage then call #writeReports');
+  if (!global[opts.coverageVariable]) throw new Error('no coverage data found, run tests before calling `summarizeCoverage`');
 
   var collector = new Collector();
   collector.add(global[opts.coverageVariable]);
@@ -55,14 +54,17 @@ plugin.summarizeCoverage = function (opts) {
 
 plugin.writeReports = function (opts) {
   if (typeof opts === 'string') opts = { dir: opts };
-  if (!opts) opts = {};
-  if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
-  if (!opts.dir) opts.dir = path.join(process.cwd(), "coverage");
-  if (!opts.reporters) opts.reporters = [ "lcov", "json", "text", "text-summary" ];
-  if (!opts.reportOpts) opts.reportOpts = { dir: opts.dir };
+  opts = opts || {};
 
-  var validReports = Report.getReportList();
-  var invalid = _.difference(opts.reporters, validReports);
+  var defaultDir = path.join(process.cwd(), 'coverage');
+  opts = _.defaults(opts, {
+    coverageVariable: COVERAGE_VARIABLE,
+    dir: defaultDir,
+    reporters: [ 'lcov', 'json', 'text', 'text-summary' ],
+    reportOpts: { dir: opts.dir || defaultDir }
+  });
+
+  var invalid = _.difference(opts.reporters, Report.getReportList());
   if (invalid.length) {
     // throw before we start -- fail fast
     throw new PluginError(PLUGIN_NAME, 'Invalid reporters: ' + invalid.join(', '));
@@ -79,7 +81,6 @@ plugin.writeReports = function (opts) {
     collector.add(global[opts.coverageVariable]);
     reporters.forEach(function (report) { report.writeReport(collector, true); });
     delete global[opts.coverageVariable];
-
   }).resume();
 
   return cover;
