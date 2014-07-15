@@ -21,15 +21,12 @@ Then, add it to your `gulpfile.js`:
 var istanbul = require('gulp-istanbul');
 var mocha = require('gulp-mocha'); // Using mocha here, but any test framework will work
 
-gulp.task('test', function (cb) {
-  gulp.src(['lib/**/*.js', 'main.js'])
+gulp.task('test', function () {
+  return gulp.src(['lib/**/*.js', 'main.js'])
     .pipe(istanbul()) // Covering files
-    .on('finish', function () {
-      gulp.src(['test/*.js'])
-        .pipe(mocha())
-        .pipe(istanbul.writeReports()) // Creating the reports after tests runned
-        .on('end', cb);
-    });
+    .pipe(gulp.src(['test/*.js']))
+    .pipe(mocha())
+    .pipe(istanbul.writeReports()) // Creating the reports after tests runned
 });
 ```
 
