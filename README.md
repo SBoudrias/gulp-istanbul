@@ -44,7 +44,8 @@ Instrument files passed in the stream.
 Type: `Object` (optional)
 ```js
 {
-  coverageVariable: 'someVariable'
+  coverageVariable: 'someVariable',
+  ...other Instrumeter options...
 }
 ```
 
@@ -57,6 +58,12 @@ The global variable istanbul uses to store coverage
 See also:
 - [istanbul coverageVariable][istanbul-coverage-variable]
 - [SanboxedModule][sandboxed-module-coverage-variable]
+
+##### Other Istanbul Instrutrumenter options
+
+See:
+- [istanbul Instrumenter documentation][istanbul-coverage-variable]
+
 
 ### istanbul.summarizeCoverage(opt)
 
