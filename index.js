@@ -24,7 +24,7 @@ var plugin  = module.exports = function (opts) {
     return fileMap[path];
   });
 
-  var instrumenter = new istanbul.Instrumenter({ coverageVariable: opts.coverageVariable });
+  var instrumenter = new istanbul.Instrumenter(opts);
 
   return through(function (file, enc, cb) {
     if (!file.contents instanceof Buffer) {
