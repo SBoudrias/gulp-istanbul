@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "gulp-util": "^2.2.14",
-    "istanbul": "^0.2.8",
+    "istanbul": "git+https://github.com/gotwarlost/istanbul.git#harmony",
     "lodash": "^2.4.1",
     "through2": "^0.4.1"
   },
