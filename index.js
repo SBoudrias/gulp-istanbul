@@ -27,7 +27,7 @@ var plugin  = module.exports = function (opts) {
   var instrumenter = new istanbul.Instrumenter(opts);
 
   return through(function (file, enc, cb) {
-    if (!file.contents instanceof Buffer) {
+    if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'), undefined);
     }
 
