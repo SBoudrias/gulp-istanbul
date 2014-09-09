@@ -15,6 +15,7 @@ var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
 var plugin  = module.exports = function (opts) {
   opts = opts || {};
+  opts.includeUntested = _.isUndefined(opts.includeUntested) ? false : true;
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
   var fileMap = {};
 
@@ -40,13 +41,15 @@ var plugin  = module.exports = function (opts) {
       // to the global coverage variable to enable reporting on non-required
       // files, a workaround for
       // https://github.com/gotwarlost/istanbul/issues/112
-      var instrumentedSrc = fileMap[file.path];
-      var covStubRE = /\{.*"path".*"fnMap".*"statementMap".*"branchMap".*\}/g;
-      var covStubMatch = covStubRE.exec(instrumentedSrc);
-      if (covStubMatch !== null) {
-        var covStub = JSON.parse(covStubMatch[0]);
-        global[opts.coverageVariable] = global[opts.coverageVariable] || {};
-        global[opts.coverageVariable][path.resolve(file.path)] = covStub;
+      if (opts.includeUndefined) {
+        var instrumentedSrc = fileMap[file.path];
+        var covStubRE = /\{.*"path".*"fnMap".*"statementMap".*"branchMap".*\}/g;
+        var covStubMatch = covStubRE.exec(instrumentedSrc);
+        if (covStubMatch !== null) {
+          var covStub = JSON.parse(covStubMatch[0]);
+          global[opts.coverageVariable] = global[opts.coverageVariable] || {};
+          global[opts.coverageVariable][path.resolve(file.path)] = covStub;
+        }
       }
 
       return cb(err, file);
