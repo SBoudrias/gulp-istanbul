@@ -41,7 +41,7 @@ var plugin  = module.exports = function (opts) {
       // to the global coverage variable to enable reporting on non-required
       // files, a workaround for
       // https://github.com/gotwarlost/istanbul/issues/112
-      if (opts.includeUndefined) {
+      if (opts.includeUntested) {
         var instrumentedSrc = fileMap[file.path];
         var covStubRE = /\{.*"path".*"fnMap".*"statementMap".*"branchMap".*\}/g;
         var covStubMatch = covStubRE.exec(instrumentedSrc);
