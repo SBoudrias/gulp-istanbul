@@ -59,6 +59,15 @@ See also:
 - [istanbul coverageVariable][istanbul-coverage-variable]
 - [SanboxedModule][sandboxed-module-coverage-variable]
 
+##### includeUntested
+Type: `Boolean` (optional)
+Default: `false`
+
+Flag to include test coverage of files that aren't `require`d by any tests
+
+See also:
+- [istanbul "0% coverage" issue][istanbul-untested-cov-issue]
+
 ##### Other Istanbul Instrutrumenter options
 
 See:
@@ -170,3 +179,5 @@ License
 [istanbul-coverage-variable]: http://gotwarlost.github.io/istanbul/public/apidocs/classes/Instrumenter.html
 [istanbul-summarize-coverage]: http://gotwarlost.github.io/istanbul/public/apidocs/classes/ObjectUtils.html#method_summarizeCoverage
 [sandboxed-module-coverage-variable]: https://github.com/felixge/node-sandboxed-module/blob/master/lib/sandboxed_module.js#L240
+
+[istanbul-untested-cov-issue]: https://github.com/gotwarlost/istanbul/issues/112
