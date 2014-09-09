@@ -96,6 +96,9 @@ describe('gulp-istanbul', function () {
               var data = istanbul.summarizeCoverage({
                   coverageVariable: COV_VAR
               });
+
+              // If untested files are included, line and statement coverage
+              // drops to 25%
               assert.ok(data.lines.pct === 25);
               assert.ok(data.statements.pct === 25);
               assert.ok(data.functions.pct === 0);
