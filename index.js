@@ -80,7 +80,6 @@ plugin.writeReports = function (opts) {
     var collector = new Collector();
     collector.add(global[opts.coverageVariable] || {}); //revert to an object if there are not macthing source files.
     reporters.forEach(function (report) { report.writeReport(collector, true); });
-    delete global[opts.coverageVariable];
   }).resume();
 
   return cover;
