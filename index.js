@@ -87,15 +87,20 @@ plugin.writeReports = function (opts) {
   }
 
   var reporters = opts.reporters.map(function (r) {
-    return Report.create(r, opts.reportOpts);
+    return Report.create(r, _.clone(opts.reportOpts));
   });
 
   var cover = through();
 
   cover.on('end', function () {
     var collector = new Collector();
-    collector.add(global[opts.coverageVariable] || {}); //revert to an object if there are not macthing source files.
-    reporters.forEach(function (report) { report.writeReport(collector, true); });
+
+    // revert to an object if there are not macthing source files.
+    collector.add(global[opts.coverageVariable] || {});
+
+    reporters.forEach(function (report) {
+      report.writeReport(collector, true);
+    });
   }).resume();
 
   return cover;
