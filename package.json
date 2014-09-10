@@ -25,14 +25,14 @@
     "test": "mocha -R spec"
   },
   "dependencies": {
-    "gulp-util": "^2.2.14",
+    "gulp-util": "^3.0.1",
     "istanbul": "^0.2.8",
     "lodash": "^2.4.1",
-    "through2": "^0.4.1"
+    "through2": "^0.6.1"
   },
   "devDependencies": {
-    "gulp-mocha": "^0.4.1",
     "gulp": "^3.6.2",
+    "gulp-mocha": "^1.0.0",
     "jshint": "^2.5.0",
     "mocha": "^1.18.2",
     "rimraf": "^2.2.8"
