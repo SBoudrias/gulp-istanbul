@@ -15,7 +15,7 @@ var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
 var plugin  = module.exports = function (opts) {
   opts = opts || {};
-  opts.includeUntested = _.isUndefined(opts.includeUntested) ? false : true;
+  opts.includeUntested = opts.includeUntested === true;
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
   var fileMap = {};
 
