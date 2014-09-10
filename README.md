@@ -59,6 +59,15 @@ See also:
 - [istanbul coverageVariable][istanbul-coverage-variable]
 - [SanboxedModule][sandboxed-module-coverage-variable]
 
+##### includeUntested
+Type: `Boolean` (optional)
+Default: `false`
+
+Flag to include test coverage of files that aren't `require`d by any tests
+
+See also:
+- [istanbul "0% coverage" issue](https://github.com/gotwarlost/istanbul/issues/112)
+
 ##### Other Istanbul Instrutrumenter options
 
 See:
