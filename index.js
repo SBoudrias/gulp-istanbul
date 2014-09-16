@@ -15,6 +15,7 @@ var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
 var plugin  = module.exports = function (opts) {
   opts = opts || {};
+  opts.includeUntested = opts.includeUntested === true;
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
   var fileMap = {};
 
@@ -27,7 +28,7 @@ var plugin  = module.exports = function (opts) {
   var instrumenter = new istanbul.Instrumenter(opts);
 
   return through(function (file, enc, cb) {
-    if (!file.contents instanceof Buffer) {
+    if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'), undefined);
     }
 
@@ -35,6 +36,21 @@ var plugin  = module.exports = function (opts) {
       if (!err) file.contents = new Buffer(code);
 
       fileMap[file.path] = file.contents.toString();
+
+      // Parse the blank coverage object from the instrumented file and save it
+      // to the global coverage variable to enable reporting on non-required
+      // files, a workaround for
+      // https://github.com/gotwarlost/istanbul/issues/112
+      if (opts.includeUntested) {
+        var instrumentedSrc = fileMap[file.path];
+        var covStubRE = /\{.*"path".*"fnMap".*"statementMap".*"branchMap".*\}/g;
+        var covStubMatch = covStubRE.exec(instrumentedSrc);
+        if (covStubMatch !== null) {
+          var covStub = JSON.parse(covStubMatch[0]);
+          global[opts.coverageVariable] = global[opts.coverageVariable] || {};
+          global[opts.coverageVariable][path.resolve(file.path)] = covStub;
+        }
+      }
 
       return cb(err, file);
     });
@@ -71,16 +87,20 @@ plugin.writeReports = function (opts) {
   }
 
   var reporters = opts.reporters.map(function (r) {
-    return Report.create(r, opts.reportOpts);
+    return Report.create(r, _.clone(opts.reportOpts));
   });
 
   var cover = through();
 
   cover.on('end', function () {
     var collector = new Collector();
-    collector.add(global[opts.coverageVariable] || {}); //revert to an object if there are not macthing source files.
-    reporters.forEach(function (report) { report.writeReport(collector, true); });
-    delete global[opts.coverageVariable];
+
+    // revert to an object if there are not macthing source files.
+    collector.add(global[opts.coverageVariable] || {});
+
+    reporters.forEach(function (report) {
+      report.writeReport(collector, true);
+    });
   }).resume();
 
   return cover;

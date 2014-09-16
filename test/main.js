@@ -59,27 +59,54 @@ describe('gulp-istanbul', function () {
   });
 
   describe('istanbul.summarizeCoverage()', function () {
-    beforeEach(function (done) {
-      // set up coverage
+
+    it('gets statistics about the test run', function (done) {
       gulp.src([ 'test/fixtures/lib/*.js' ])
         .pipe(istanbul())
         .on('finish', function () {
           process.stdout.write = function () {};
           gulp.src([ 'test/fixtures/test/*.js' ])
             .pipe(mocha({ reporter: 'spec' }))
-            .on('finish', done);
+            .on('end', function () {
+
+              var data = istanbul.summarizeCoverage();
+              assert.ok(data.lines.pct === 75);
+              assert.ok(data.statements.pct === 75);
+              assert.ok(data.functions.pct === 50);
+              assert.ok(data.branches.pct === 100);
+              done();
+            });
         });
     });
 
-    it('gets statistics about the test run', function (done) {
-      var data = istanbul.summarizeCoverage();
-      assert.ok(data.lines.pct === 50);
-      assert.ok(data.statements.pct === 50);
-      assert.ok(data.functions.pct === 0);
-      assert.ok(data.branches.pct === 100);
-      done();
-    });
+    it('allows inclusion of untested files', function (done) {
+      var COV_VAR = 'untestedCovVar';
 
+      gulp.src([ 'test/fixtures/lib/*.js' ])
+        .pipe(istanbul({
+            coverageVariable: COV_VAR,
+            includeUntested: true
+        }))
+        .on('finish', function () {
+          process.stdout.write = function () {};
+          gulp.src([ 'test/fixtures/test/*.js' ])
+            .pipe(mocha({ reporter: 'spec' }))
+            .on('end', function () {
+
+              var data = istanbul.summarizeCoverage({
+                  coverageVariable: COV_VAR
+              });
+
+              // If untested files are included, line and statement coverage
+              // drops to 37.5%
+              assert.ok(data.lines.pct === 37.5);
+              assert.ok(data.statements.pct === 37.5);
+              assert.ok(data.functions.pct === 25);
+              assert.ok(data.branches.pct === 100);
+              done();
+            });
+        });
+    });
   });
 
   describe('istanbul.writeReports()', function () {
