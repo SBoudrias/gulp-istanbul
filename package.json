@@ -28,7 +28,7 @@
     "gulp-util": "^3.0.1",
     "istanbul": "^0.3.2",
     "lodash": "^2.4.1",
-    "through2": "^0.6.1"
+    "through2": "^0.4.2"
   },
   "devDependencies": {
     "gulp": "^3.6.2",
