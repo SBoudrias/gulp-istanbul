@@ -19,11 +19,16 @@ var plugin = module.exports = function (opts) {
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
   var fileMap = {};
 
-  hook.hookRequire(function (path) {
+  function matcher(path) {
     return !!fileMap[path];
-  }, function (code, path) {
+  }
+
+  function transform(code, path) {
     return fileMap[path];
-  });
+  }
+
+  hook.hookRequire(matcher, transform);
+  hook.hookCreateScript(matcher, transform);
 
   var instrumenter = new istanbul.Instrumenter(opts);
 
