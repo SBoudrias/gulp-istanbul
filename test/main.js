@@ -14,6 +14,7 @@ describe('gulp-istanbul', function () {
 
   afterEach(function () {
     process.stdout.write = out; // put it back even if test fails
+    require.cache = {};
   });
 
   var libFile = new gutil.File({
@@ -40,7 +41,7 @@ describe('gulp-istanbul', function () {
       this.stream.end();
     });
 
-    it('should error on stream', function (done) {
+    it('throw when receiving a stream', function (done) {
       var srcFile = new gutil.File({
         path: 'test/fixtures/lib/add.js',
         cwd: 'test/',
@@ -54,6 +55,17 @@ describe('gulp-istanbul', function () {
       });
 
       this.stream.write(srcFile);
+      this.stream.end();
+    });
+
+    it('clear covered files from require.cache', function (done) {
+      var add1 = require('./fixtures/lib/add');
+      this.stream.on('finish', function () {
+        var add2 = require('./fixtures/lib/add');
+        assert.notEqual(add1, add2);
+        done();
+      });
+      this.stream.write(libFile);
       this.stream.end();
     });
   });

@@ -13,7 +13,7 @@ var PluginError = gutil.PluginError;
 var PLUGIN_NAME = 'gulp-istanbul';
 var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
-var plugin  = module.exports = function (opts) {
+var plugin = module.exports = function (opts) {
   opts = opts || {};
   opts.includeUntested = opts.includeUntested === true;
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
@@ -35,6 +35,9 @@ var plugin  = module.exports = function (opts) {
     instrumenter.instrument(file.contents.toString(), file.path, function (err, code) {
       if (!err) file.contents = new Buffer(code);
 
+      // If the file is already required, delete it from the cache otherwise the covered
+      // version will be ignored.
+      delete require.cache[path.resolve(file.path)];
       fileMap[file.path] = file.contents.toString();
 
       // Parse the blank coverage object from the instrumented file and save it
