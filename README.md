@@ -168,13 +168,13 @@ License
 [gulp]: https://github.com/gulpjs/gulp
 
 [npm-url]: https://npmjs.org/package/gulp-istanbul
-[npm-image]: https://badge.fury.io/js/gulp-istanbul.png
+[npm-image]: https://badge.fury.io/js/gulp-istanbul.svg
 
 [travis-url]: http://travis-ci.org/SBoudrias/gulp-istanbul
-[travis-image]: https://secure.travis-ci.org/SBoudrias/gulp-istanbul.png?branch=master
+[travis-image]: https://secure.travis-ci.org/SBoudrias/gulp-istanbul.svg?branch=master
 
 [depstat-url]: https://david-dm.org/SBoudrias/gulp-istanbul
-[depstat-image]: https://david-dm.org/SBoudrias/gulp-istanbul.png
+[depstat-image]: https://david-dm.org/SBoudrias/gulp-istanbul.svg
 
 [istanbul-coverage-variable]: http://gotwarlost.github.io/istanbul/public/apidocs/classes/Instrumenter.html
 [istanbul-summarize-coverage]: http://gotwarlost.github.io/istanbul/public/apidocs/classes/ObjectUtils.html#method_summarizeCoverage
