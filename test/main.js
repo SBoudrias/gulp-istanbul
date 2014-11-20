@@ -31,8 +31,8 @@ describe('gulp-istanbul', function () {
     it('instrument files', function (done) {
       this.stream.on('data', function (file) {
         assert.equal(file.path, libFile.path);
-        assert.ok(file.contents.toString().indexOf('__cov_') >= 0);
-        assert.ok(file.contents.toString().indexOf('$$cov_') >= 0);
+        assert(file.contents.toString().indexOf('__cov_') >= 0);
+        assert(file.contents.toString().indexOf('$$cov_') >= 0);
         done();
       });
 
@@ -49,7 +49,7 @@ describe('gulp-istanbul', function () {
       });
 
       this.stream.on('error', function (err) {
-        assert.ok(err);
+        assert(err);
         done();
       });
 
@@ -66,14 +66,13 @@ describe('gulp-istanbul', function () {
         .on('finish', function () {
           process.stdout.write = function () {};
           gulp.src([ 'test/fixtures/test/*.js' ])
-            .pipe(mocha({ reporter: 'spec' }))
-            .on('finish', function () {
-
+            .pipe(mocha())
+            .on('end', function () {
               var data = istanbul.summarizeCoverage();
-              assert.ok(data.lines.pct === 50);
-              assert.ok(data.statements.pct === 50);
-              assert.ok(data.functions.pct === 0);
-              assert.ok(data.branches.pct === 100);
+              assert.equal(data.lines.pct, 75);
+              assert.equal(data.statements.pct, 75);
+              assert.equal(data.functions.pct, 50);
+              assert.equal(data.branches.pct, 100);
               done();
             });
         });
@@ -90,19 +89,18 @@ describe('gulp-istanbul', function () {
         .on('finish', function () {
           process.stdout.write = function () {};
           gulp.src([ 'test/fixtures/test/*.js' ])
-            .pipe(mocha({ reporter: 'spec' }))
-            .on('finish', function () {
-
+            .pipe(mocha())
+            .on('end', function () {
               var data = istanbul.summarizeCoverage({
                   coverageVariable: COV_VAR
               });
 
               // If untested files are included, line and statement coverage
               // drops to 25%
-              assert.ok(data.lines.pct === 25);
-              assert.ok(data.statements.pct === 25);
-              assert.ok(data.functions.pct === 0);
-              assert.ok(data.branches.pct === 100);
+              assert.equal(data.lines.pct, 37.5);
+              assert.equal(data.statements.pct, 37.5);
+              assert.equal(data.functions.pct, 25);
+              assert.equal(data.branches.pct, 100);
               done();
             });
         });
@@ -124,7 +122,7 @@ describe('gulp-istanbul', function () {
 
     it('output coverage report', function (done) {
       gulp.src([ 'test/fixtures/test/*.js' ])
-        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(mocha())
         .pipe(istanbul.writeReports());
 
       process.stdout.write = function (str) {
@@ -137,12 +135,12 @@ describe('gulp-istanbul', function () {
     it('create coverage report', function (done) {
       process.stdout.write = function () {};
       gulp.src([ 'test/fixtures/test/*.js' ])
-        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(mocha())
         .pipe(istanbul.writeReports())
         .on('end', function () {
-          assert.ok(fs.existsSync('./coverage'));
-          assert.ok(fs.existsSync('./coverage/lcov.info'));
-          assert.ok(fs.existsSync('./coverage/coverage-final.json'));
+          assert(fs.existsSync('./coverage'));
+          assert(fs.existsSync('./coverage/lcov.info'));
+          assert(fs.existsSync('./coverage/coverage-final.json'));
           done();
         });
     });
@@ -150,12 +148,12 @@ describe('gulp-istanbul', function () {
     it('allow specifying report output dir (legacy way)', function (done) {
       process.stdout.write = function () {};
       gulp.src([ 'test/fixtures/test/*.js' ])
-        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(mocha())
         .pipe(istanbul.writeReports('cov-foo'))
         .on('end', function () {
-          assert.ok(fs.existsSync('./cov-foo'));
-          assert.ok(fs.existsSync('./cov-foo/lcov.info'));
-          assert.ok(fs.existsSync('./cov-foo/coverage-final.json'));
+          assert(fs.existsSync('./cov-foo'));
+          assert(fs.existsSync('./cov-foo/lcov.info'));
+          assert(fs.existsSync('./cov-foo/coverage-final.json'));
           done();
         });
     });
@@ -163,12 +161,12 @@ describe('gulp-istanbul', function () {
     it('allow specifying report output dir', function (done) {
       process.stdout.write = function () {};
       gulp.src([ 'test/fixtures/test/*.js' ])
-        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(mocha())
         .pipe(istanbul.writeReports({ dir: 'cov-foo' }))
         .on('end', function () {
-          assert.ok(fs.existsSync('./cov-foo'));
-          assert.ok(fs.existsSync('./cov-foo/lcov.info'));
-          assert.ok(fs.existsSync('./cov-foo/coverage-final.json'));
+          assert(fs.existsSync('./cov-foo'));
+          assert(fs.existsSync('./cov-foo/lcov.info'));
+          assert(fs.existsSync('./cov-foo/coverage-final.json'));
           process.stdout.write = out;
           done();
         });
@@ -177,12 +175,12 @@ describe('gulp-istanbul', function () {
     it('allow specifying report output formats', function (done) {
       process.stdout.write = function () {};
       gulp.src([ 'test/fixtures/test/*.js' ])
-        .pipe(mocha({ reporter: 'spec' }))
+        .pipe(mocha())
         .pipe(istanbul.writeReports({ dir: 'cov-foo', reporters: ['cobertura'] }))
         .on('end', function () {
-          assert.ok(fs.existsSync('./cov-foo'));
-          assert.ok(!fs.existsSync('./cov-foo/lcov.info'));
-          assert.ok(fs.existsSync('./cov-foo/cobertura-coverage.xml'));
+          assert(fs.existsSync('./cov-foo'));
+          assert(!fs.existsSync('./cov-foo/lcov.info'));
+          assert(fs.existsSync('./cov-foo/cobertura-coverage.xml'));
           process.stdout.write = out;
           done();
         });
@@ -195,7 +193,7 @@ describe('gulp-istanbul', function () {
       } catch (err) {
         actualErr = err;
       }
-      assert.ok(actualErr.plugin === 'gulp-istanbul');
+      assert.equal(actualErr.plugin, 'gulp-istanbul');
     });
 
   });
@@ -215,12 +213,12 @@ describe('gulp-istanbul', function () {
         .pipe(istanbul({ coverageVariable: coverageVariable }))
         .on('finish', function () {
           gulp.src([ 'test/fixtures/test/*.js' ])
-            .pipe(mocha({ reporter: 'spec' }))
+            .pipe(mocha())
             .pipe(istanbul.writeReports({ coverageVariable: coverageVariable }))
             .on('end', function () {
-              assert.ok(fs.existsSync('./coverage'));
-              assert.ok(fs.existsSync('./coverage/lcov.info'));
-              assert.ok(fs.existsSync('./coverage/coverage-final.json'));
+              assert(fs.existsSync('./coverage'));
+              assert(fs.existsSync('./coverage/lcov.info'));
+              assert(fs.existsSync('./coverage/coverage-final.json'));
               done();
             });
         });
