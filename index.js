@@ -28,12 +28,20 @@ var plugin = module.exports = function (opts) {
   var instrumenter = new istanbul.Instrumenter(opts);
 
   return through(function (file, enc, cb) {
+    cb = _.once(cb);
     if (!(file.contents instanceof Buffer)) {
-      return cb(new PluginError(PLUGIN_NAME, 'streams not supported'), undefined);
+      return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
     }
 
     instrumenter.instrument(file.contents.toString(), file.path, function (err, code) {
-      if (!err) file.contents = new Buffer(code);
+      if (err) {
+        return cb(new PluginError(
+          PLUGIN_NAME,
+          'Unable to parse ' + file.path + '\n\n' + err.message + '\n'
+        ));
+      }
+
+      file.contents = new Buffer(code);
 
       // If the file is already required, delete it from the cache otherwise the covered
       // version will be ignored.

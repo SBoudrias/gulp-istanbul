@@ -68,6 +68,21 @@ describe('gulp-istanbul', function () {
       this.stream.write(libFile);
       this.stream.end();
     });
+
+    it('handles invalid JS files', function (done) {
+      var srcFile = new gutil.File({
+        path: 'test/fixtures/lib/add.js',
+        cwd: 'test/',
+        base: 'test/fixtures/lib',
+        contents: new Buffer('var a {}')
+      });
+      this.stream.on('error', function (err) {
+        assert(err.message.indexOf('test/fixtures/lib/add.js') >= 0);
+        done();
+      });
+      this.stream.write(srcFile);
+      this.stream.end();
+    });
   });
 
   describe('istanbul.summarizeCoverage()', function () {
