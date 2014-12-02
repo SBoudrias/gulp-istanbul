@@ -27,7 +27,7 @@ var plugin = module.exports = function (opts) {
 
   var instrumenter = new istanbul.Instrumenter(opts);
 
-  return through(function (file, enc, cb) {
+  var stream = through(function (file, enc, cb) {
     cb = _.once(cb);
     if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
@@ -66,6 +66,10 @@ var plugin = module.exports = function (opts) {
       return cb(err, file);
     });
   });
+
+  stream.resume();
+
+  return stream;
 };
 
 plugin.summarizeCoverage = function (opts) {
