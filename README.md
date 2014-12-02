@@ -15,21 +15,48 @@ npm install --save-dev gulp-istanbul
 Example
 ---------------
 
-Then, add it to your `gulpfile.js`:
+In your `gulpfile.js`:
+
+#### Node.js testing
 
 ```javascript
 var istanbul = require('gulp-istanbul');
-var mocha = require('gulp-mocha'); // Using mocha here, but any test framework will work
+// We'll use mocha here, but any test framework will work
+var mocha = require('gulp-mocha');
 
 gulp.task('test', function (cb) {
   gulp.src(['lib/**/*.js', 'main.js'])
     .pipe(istanbul()) // Covering files
+    .pipe(istanbul.hookRequire()) // Force `require` to return covered files
     .on('finish', function () {
       gulp.src(['test/*.js'])
         .pipe(mocha())
         .pipe(istanbul.writeReports()) // Creating the reports after tests runned
         .on('end', cb);
     });
+});
+```
+
+#### Browser testing
+
+For browser testing, you'll need to write the files covered by istanbul in a directory from where you'll serve these files to the browser running the test. You'll also need a way to extract the value of the [coverage variable](#coveragevariable) after the test have runned in the browser.
+
+Browser testing is hard. If you're not sure what to do, then I suggest you take a look at [Karma test runner](http://karma-runner.github.io) - it has built-in coverage using Istanbul.
+
+
+```javascript
+var istanbul = require('gulp-istanbul');
+
+gulp.task('test', function (cb) {
+  gulp.src(['lib/**/*.js', 'main.js'])
+  .pipe(istanbul()) // Covering files
+  .pipe(gulp.dest('test-tmp/'))
+  .on('finish', function () {
+    gulp.src(['test/*.html'])
+    .pipe(testFramework())
+    .pipe(istanbul.writeReports()) // Creating the reports after tests runned
+    .on('end', cb);
+  });
 });
 ```
 
@@ -68,11 +95,16 @@ Flag to include test coverage of files that aren't `require`d by any tests
 See also:
 - [istanbul "0% coverage" issue](https://github.com/gotwarlost/istanbul/issues/112)
 
-##### Other Istanbul Instrutrumenter options
+##### Other Istanbul Instrumenter options
 
 See:
 - [istanbul Instrumenter documentation][istanbul-coverage-variable]
 
+### istanbul.hookRequire()
+
+Overwrite `require` so it returns the covered files.
+
+Always use this option if you're running tests in Node.js
 
 ### istanbul.summarizeCoverage(opt)
 
@@ -135,17 +167,17 @@ The folder in which the reports are to be outputted.
 Type: `Array` (optional)
 Default: `[ 'lcov', 'json', 'text', 'text-summary' ]`
 
-The list of reporters to use, one of:
-- 'clover'
-- 'cobertura'
-- 'html'
-- 'json'
-- 'lcov'
-- 'lcovonly'
-- 'none'
-- 'teamcity'
-- 'text'
-- 'text-summary'
+The list of available reporters:
+- `clover`
+- `cobertura`
+- `html`
+- `json`
+- `lcov`
+- `lcovonly`
+- `none`
+- `teamcity`
+- `text`
+- `text-summary`
 
 See also `require('istanbul').Report.getReportList()`
 

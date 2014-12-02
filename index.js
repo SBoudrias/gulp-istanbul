@@ -5,7 +5,6 @@ var path = require('path');
 var istanbul = require('istanbul');
 var gutil = require('gulp-util');
 var _ = require('lodash');
-var hook = istanbul.hook;
 var Report = istanbul.Report;
 var Collector = istanbul.Collector;
 var PluginError = gutil.PluginError;
@@ -17,13 +16,6 @@ var plugin = module.exports = function (opts) {
   opts = opts || {};
   opts.includeUntested = opts.includeUntested === true;
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
-  var fileMap = {};
-
-  hook.hookRequire(function (path) {
-    return !!fileMap[path];
-  }, function (code, path) {
-    return fileMap[path];
-  });
 
   var instrumenter = new istanbul.Instrumenter(opts);
 
@@ -43,17 +35,12 @@ var plugin = module.exports = function (opts) {
 
       file.contents = new Buffer(code);
 
-      // If the file is already required, delete it from the cache otherwise the covered
-      // version will be ignored.
-      delete require.cache[path.resolve(file.path)];
-      fileMap[file.path] = file.contents.toString();
-
       // Parse the blank coverage object from the instrumented file and save it
       // to the global coverage variable to enable reporting on non-required
       // files, a workaround for
       // https://github.com/gotwarlost/istanbul/issues/112
       if (opts.includeUntested) {
-        var instrumentedSrc = fileMap[file.path];
+        var instrumentedSrc = file.contents.toString();
         var covStubRE = /\{.*"path".*"fnMap".*"statementMap".*"branchMap".*\}/g;
         var covStubMatch = covStubRE.exec(instrumentedSrc);
         if (covStubMatch !== null) {
@@ -65,6 +52,24 @@ var plugin = module.exports = function (opts) {
 
       return cb(err, file);
     });
+  });
+};
+
+plugin.hookRequire = function () {
+  var fileMap = {};
+
+  istanbul.hook.hookRequire(function (path) {
+    return !!fileMap[path];
+  }, function (code, path) {
+    return fileMap[path];
+  });
+
+  return through(function (file, enc, cb) {
+    // If the file is already required, delete it from the cache otherwise the covered
+    // version will be ignored.
+    delete require.cache[path.resolve(file.path)];
+    fileMap[file.path] = file.contents.toString();
+    return cb();
   });
 };
 

@@ -58,17 +58,6 @@ describe('gulp-istanbul', function () {
       this.stream.end();
     });
 
-    it('clear covered files from require.cache', function (done) {
-      var add1 = require('./fixtures/lib/add');
-      this.stream.on('finish', function () {
-        var add2 = require('./fixtures/lib/add');
-        assert.notEqual(add1, add2);
-        done();
-      });
-      this.stream.write(libFile);
-      this.stream.end();
-    });
-
     it('handles invalid JS files', function (done) {
       var srcFile = new gutil.File({
         path: 'test/fixtures/lib/add.js',
@@ -85,11 +74,27 @@ describe('gulp-istanbul', function () {
     });
   });
 
+  describe('.hookRequire()', function () {
+    it('clear covered files from require.cache', function (done) {
+      var add1 = require('./fixtures/lib/add');
+      var stream = istanbul()
+        .pipe(istanbul.hookRequire())
+        .on('finish', function () {
+          var add2 = require('./fixtures/lib/add');
+          assert.notEqual(add1, add2);
+          done();
+        });
+      stream.write(libFile);
+      stream.end();
+    });
+  });
+
   describe('istanbul.summarizeCoverage()', function () {
 
     it('gets statistics about the test run', function (done) {
       gulp.src([ 'test/fixtures/lib/*.js' ])
         .pipe(istanbul())
+        .pipe(istanbul.hookRequire())
         .on('finish', function () {
           process.stdout.write = function () {};
           gulp.src([ 'test/fixtures/test/*.js' ])
@@ -113,6 +118,7 @@ describe('gulp-istanbul', function () {
             coverageVariable: COV_VAR,
             includeUntested: true
         }))
+        .pipe(istanbul.hookRequire())
         .on('finish', function () {
           process.stdout.write = function () {};
           gulp.src([ 'test/fixtures/test/*.js' ])
@@ -138,8 +144,9 @@ describe('gulp-istanbul', function () {
     beforeEach(function (done) {
       // set up coverage
       gulp.src([ 'test/fixtures/lib/*.js' ])
-        .on('end', done)
-        .pipe(istanbul());
+        .pipe(istanbul())
+        .pipe(istanbul.hookRequire())
+        .on('finish', done);
     });
 
     afterEach(function () {
@@ -238,6 +245,7 @@ describe('gulp-istanbul', function () {
       // set up coverage
       gulp.src([ 'test/fixtures/lib/*.js' ])
         .pipe(istanbul({ coverageVariable: coverageVariable }))
+        .pipe(istanbul.hookRequire())
         .on('finish', function () {
           gulp.src([ 'test/fixtures/test/*.js' ])
             .pipe(mocha())
@@ -246,6 +254,7 @@ describe('gulp-istanbul', function () {
               assert(fs.existsSync('./coverage'));
               assert(fs.existsSync('./coverage/lcov.info'));
               assert(fs.existsSync('./coverage/coverage-final.json'));
+              process.stdout.write = out;
               done();
             });
         });
