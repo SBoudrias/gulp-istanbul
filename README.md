@@ -191,6 +191,13 @@ See also:
 - [istanbul coverageVariable][istanbul-coverage-variable]
 - [SanboxedModule][sandboxed-module-coverage-variable]
 
+Change History
+---------------
+
+- v0.5.0 (2014-12-02)
+    - Added support for [browser testing](https://github.com/SBoudrias/gulp-istanbul#browser-testing)
+    - **Breaking Change**: For [node.js testing](https://github.com/SBoudrias/gulp-istanbul#nodejs-testing) please add after `.pipe(istanbul())` the additional call `.pipe(istanbul.hookRequire())`.
+
 License
 ------------
 
