@@ -95,6 +95,15 @@ Flag to include test coverage of files that aren't `require`d by any tests
 See also:
 - [istanbul "0% coverage" issue](https://github.com/gotwarlost/istanbul/issues/112)
 
+##### instrumentor
+Type: `Instrumentor` (optional)
+Default: `istanbul.Instrumentor`
+
+Custom Instrumentor to be used instead of the default istanbul one.
+
+See also:
+- [isparta](https://github.com/douglasduteil/isparta)
+
 ##### Other Istanbul Instrumenter options
 
 See:

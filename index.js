@@ -16,8 +16,9 @@ var plugin = module.exports = function (opts) {
   opts = opts || {};
   opts.includeUntested = opts.includeUntested === true;
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
+  if (!opts.instrumenter) opts.instrumenter = istanbul.Instrumenter;
 
-  var instrumenter = new istanbul.Instrumenter(opts);
+  var instrumenter = new opts.instrumenter(opts);
 
   return through(function (file, enc, cb) {
     cb = _.once(cb);

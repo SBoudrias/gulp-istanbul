@@ -6,6 +6,7 @@ var rimraf = require('rimraf');
 var gutil = require('gulp-util');
 var gulp = require('gulp');
 var istanbul = require('../');
+var isparta = require('isparta');
 var mocha = require('gulp-mocha');
 
 var out = process.stdout.write.bind(process.stdout);
@@ -70,6 +71,26 @@ describe('gulp-istanbul', function () {
         done();
       });
       this.stream.write(srcFile);
+      this.stream.end();
+    });
+  });
+
+  describe('istanbul() with custom instrumentor', function() {
+    beforeEach(function () {
+      this.stream = istanbul({
+        instrumentor: isparta.Instrumentor
+      });
+    });
+
+    it('instrument files', function (done) {
+      this.stream.on('data', function (file) {
+        assert.equal(file.path, libFile.path);
+        assert(file.contents.toString().indexOf('__cov_') >= 0);
+        assert(file.contents.toString().indexOf('$$cov_') >= 0);
+        done();
+      });
+
+      this.stream.write(libFile);
       this.stream.end();
     });
   });
