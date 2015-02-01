@@ -14,9 +14,11 @@ var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
 var plugin = module.exports = function (opts) {
   opts = opts || {};
+  _.defaults(opts, {
+    coverageVariable: COVERAGE_VARIABLE,
+    instrumenter: istanbul.Instrumenter
+  });
   opts.includeUntested = opts.includeUntested === true;
-  if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
-  if (!opts.instrumenter) opts.instrumenter = istanbul.Instrumenter;
 
   var instrumenter = new opts.instrumenter(opts);
 
