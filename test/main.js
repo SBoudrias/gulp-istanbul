@@ -8,6 +8,7 @@ var gulp = require('gulp');
 var istanbul = require('../');
 var isparta = require('isparta');
 var mocha = require('gulp-mocha');
+var es = require('event-stream');
 
 var out = process.stdout.write.bind(process.stdout);
 
@@ -73,6 +74,35 @@ describe('gulp-istanbul', function () {
       this.stream.write(srcFile);
       this.stream.end();
     });
+
+    it('adds covStub to untested files', function (done) {
+      var COV_VAR = 'untestedCovVar';
+      var covStubs = {};
+      gulp.src([ 'test/fixtures/lib/*.js' ])
+        .pipe(istanbul({
+            coverageVariable: COV_VAR,
+            includeUntested: true
+        }))
+        .pipe(es.through(function (file) {
+          covStubs[file.path] = file.covStub;
+          this.push(file);
+        }))
+        .on('end', function () {
+          var filePaths = Object.keys(covStubs);
+          assert(filePaths.length === 2, '2 files with covStub');
+          filePaths.forEach(function (filePath) {
+            assert(covStubs[filePath].path === filePath, 'covStub has path');
+            assert(covStubs[filePath].hasOwnProperty('s'), 'covStub has s');
+            assert(covStubs[filePath].hasOwnProperty('b'), 'covStub has b');
+            assert(covStubs[filePath].hasOwnProperty('f'), 'covStub has f');
+            assert(covStubs[filePath].hasOwnProperty('fnMap'), 'covStub has fnMap');
+            assert(covStubs[filePath].hasOwnProperty('statementMap'), 'covStub has statementMap');
+            assert(covStubs[filePath].hasOwnProperty('branchMap'), 'covStub has branchMap');
+          });
+          done();
+        });
+    });
+
   });
 
   describe('istanbul() with custom instrumentor', function() {
