@@ -8,7 +8,7 @@ var gulp = require('gulp');
 var istanbul = require('../');
 var isparta = require('isparta');
 var mocha = require('gulp-mocha');
-var es = require('event-stream');
+var through = require('through2').obj;
 
 var out = process.stdout.write.bind(process.stdout);
 
@@ -83,11 +83,11 @@ describe('gulp-istanbul', function () {
             coverageVariable: COV_VAR,
             includeUntested: true
         }))
-        .pipe(es.through(function (file) {
+        .pipe(through(function (file, enc, callback) {
           covStubs[file.path] = file.covStub;
           this.push(file);
-        }))
-        .on('end', function () {
+          callback();
+        }, function (callback) {
           var filePaths = Object.keys(covStubs);
           assert(filePaths.length === 2, '2 files with covStub');
           filePaths.forEach(function (filePath) {
@@ -99,8 +99,9 @@ describe('gulp-istanbul', function () {
             assert(covStubs[filePath].hasOwnProperty('statementMap'), 'covStub has statementMap');
             assert(covStubs[filePath].hasOwnProperty('branchMap'), 'covStub has branchMap');
           });
+          callback();
           done();
-        });
+        }));
     });
 
   });
