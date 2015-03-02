@@ -50,6 +50,7 @@ var plugin = module.exports = function (opts) {
           var covStub = JSON.parse(covStubMatch[0]);
           global[opts.coverageVariable] = global[opts.coverageVariable] || {};
           global[opts.coverageVariable][path.resolve(file.path)] = covStub;
+          file.covStub = covStub;
         }
       }
 
