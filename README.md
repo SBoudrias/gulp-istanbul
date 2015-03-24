@@ -121,7 +121,7 @@ See:
 
 ### istanbul.hookRequire()
 
-Overwrite `require` so it returns the covered files.
+Overwrite `require` so it returns the covered files. The method take an optional [option object](https://gotwarlost.github.io/istanbul/public/apidocs/classes/Hook.html#method_hookRequire).
 
 Always use this option if you're running tests in Node.js
 
