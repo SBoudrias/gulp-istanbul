@@ -58,14 +58,14 @@ var plugin = module.exports = function (opts) {
   });
 };
 
-plugin.hookRequire = function () {
+plugin.hookRequire = function (options) {
   var fileMap = {};
 
   istanbul.hook.hookRequire(function (path) {
     return !!fileMap[path];
   }, function (code, path) {
     return fileMap[path];
-  });
+  }, options);
 
   return through(function (file, enc, cb) {
     // If the file is already required, delete it from the cache otherwise the covered
