@@ -8,6 +8,7 @@ var gulp = require('gulp');
 var istanbul = require('../');
 var isparta = require('isparta');
 var mocha = require('gulp-mocha');
+var Report = require('istanbul').Report;
 
 var out = process.stdout.write.bind(process.stdout);
 
@@ -236,6 +237,29 @@ describe('gulp-istanbul', function () {
           assert(fs.existsSync('./cov-foo'));
           assert(!fs.existsSync('./cov-foo/lcov.info'));
           assert(fs.existsSync('./cov-foo/cobertura-coverage.xml'));
+          process.stdout.write = out;
+          done();
+        });
+    });
+
+    it('allows specifying custom reporters', function (done) {
+
+      var ExampleReport = function() {};
+      ExampleReport.TYPE = 'example';
+      ExampleReport.prototype = Object.create(Report.prototype);
+
+      var reported = false;
+      ExampleReport.prototype.writeReport = function () {
+        reported = true;
+        this.emit('done');
+      };
+
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha())
+        .pipe(istanbul.writeReports({ dir: 'cov-foo', reporters: [ExampleReport] }))
+        .on('end', function () {
+          assert(reported);
           process.stdout.write = out;
           done();
         });

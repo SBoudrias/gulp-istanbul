@@ -99,13 +99,18 @@ plugin.writeReports = function (opts) {
     reportOpts: { dir: opts.dir || defaultDir }
   });
 
-  var invalid = _.difference(opts.reporters, Report.getReportList());
+  var reporters = opts.reporters.map(function(reporter) {
+    if (reporter.TYPE) Report.register(reporter);
+    return reporter.TYPE || reporter;
+  });
+
+  var invalid = _.difference(reporters, Report.getReportList());
   if (invalid.length) {
     // throw before we start -- fail fast
     throw new PluginError(PLUGIN_NAME, 'Invalid reporters: ' + invalid.join(', '));
   }
 
-  var reporters = opts.reporters.map(function (r) {
+  reporters = reporters.map(function (r) {
     return Report.create(r, _.clone(opts.reportOpts));
   });
 

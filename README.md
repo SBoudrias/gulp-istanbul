@@ -170,7 +170,7 @@ Type: `Object` (optional)
 ```js
 {
   dir: './coverage',
-  reporters: [ 'lcov', 'json', 'text', 'text-summary' ],
+  reporters: [ 'lcov', 'json', 'text', 'text-summary', CustomReport ],
   reportOpts: { dir: './coverage' },
   coverageVariable: 'someVariable'
 }
@@ -197,6 +197,8 @@ The list of available reporters:
 - `teamcity`
 - `text`
 - `text-summary`
+
+You can also specify one or more custom reporter objects as items in the array. These will be automatically registered with istanbul.
 
 See also `require('istanbul').Report.getReportList()`
 
