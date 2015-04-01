@@ -61,6 +61,7 @@ var plugin = module.exports = function (opts) {
 plugin.hookRequire = function (options) {
   var fileMap = {};
 
+  istanbul.hook.unhookRequire();
   istanbul.hook.hookRequire(function (path) {
     return !!fileMap[path];
   }, function (code, path) {
