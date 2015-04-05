@@ -34,10 +34,9 @@
     "through2": "^0.6.3"
   },
   "devDependencies": {
-    "6to5": "^3.2.1",
     "gulp": "^3.6.2",
     "gulp-mocha": "^2.0.0",
-    "isparta": "^1.0.1",
+    "isparta": "^3.0.0",
     "jshint": "^2.5.0",
     "mocha": "^2.0.1",
     "rimraf": "^2.2.8"
