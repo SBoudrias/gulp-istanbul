@@ -123,6 +123,7 @@ describe('gulp-istanbul', function () {
             .pipe(mocha())
             .on('end', function () {
               var data = istanbul.summarizeCoverage();
+              process.stdout.write = out;
               assert.equal(data.lines.pct, 75);
               assert.equal(data.statements.pct, 75);
               assert.equal(data.functions.pct, 50);
@@ -149,6 +150,7 @@ describe('gulp-istanbul', function () {
               var data = istanbul.summarizeCoverage({
                   coverageVariable: COV_VAR
               });
+              process.stdout.write = out;
 
               // If untested files are included, line and statement coverage
               // drops to 25%
@@ -194,6 +196,7 @@ describe('gulp-istanbul', function () {
         .pipe(mocha())
         .pipe(istanbul.writeReports())
         .on('end', function () {
+          process.stdout.write = out;
           assert(fs.existsSync('./coverage'));
           assert(fs.existsSync('./coverage/lcov.info'));
           assert(fs.existsSync('./coverage/coverage-final.json'));
@@ -207,6 +210,7 @@ describe('gulp-istanbul', function () {
         .pipe(mocha())
         .pipe(istanbul.writeReports('cov-foo'))
         .on('end', function () {
+          process.stdout.write = out;
           assert(fs.existsSync('./cov-foo'));
           assert(fs.existsSync('./cov-foo/lcov.info'));
           assert(fs.existsSync('./cov-foo/coverage-final.json'));
@@ -220,6 +224,7 @@ describe('gulp-istanbul', function () {
         .pipe(mocha())
         .pipe(istanbul.writeReports({ dir: 'cov-foo' }))
         .on('end', function () {
+          process.stdout.write = out;
           assert(fs.existsSync('./cov-foo'));
           assert(fs.existsSync('./cov-foo/lcov.info'));
           assert(fs.existsSync('./cov-foo/coverage-final.json'));
@@ -234,6 +239,7 @@ describe('gulp-istanbul', function () {
         .pipe(mocha())
         .pipe(istanbul.writeReports({ dir: 'cov-foo', reporters: ['cobertura'] }))
         .on('end', function () {
+          process.stdout.write = out;
           assert(fs.existsSync('./cov-foo'));
           assert(!fs.existsSync('./cov-foo/lcov.info'));
           assert(fs.existsSync('./cov-foo/cobertura-coverage.xml'));
@@ -243,7 +249,6 @@ describe('gulp-istanbul', function () {
     });
 
     it('allows specifying custom reporters', function (done) {
-
       var ExampleReport = function() {};
       ExampleReport.TYPE = 'example';
       ExampleReport.prototype = Object.create(Report.prototype);
@@ -259,8 +264,8 @@ describe('gulp-istanbul', function () {
         .pipe(mocha())
         .pipe(istanbul.writeReports({ dir: 'cov-foo', reporters: [ExampleReport] }))
         .on('end', function () {
-          assert(reported);
           process.stdout.write = out;
+          assert(reported);
           done();
         });
     });
@@ -301,6 +306,125 @@ describe('gulp-istanbul', function () {
               assert(fs.existsSync('./coverage/coverage-final.json'));
               process.stdout.write = out;
               done();
+            });
+        });
+    });
+  });
+
+  describe('istanbul.enforceThresholds()', function () {
+    beforeEach(function (done) {
+      // set up coverage
+      gulp.src([ 'test/fixtures/lib/*.js' ])
+        .pipe(istanbul())
+        .pipe(istanbul.hookRequire())
+        .on('finish', done);
+    });
+
+    afterEach(function () {
+      rimraf.sync('coverage');
+      rimraf.sync('cov-foo');
+    });
+
+    it('checks coverage fails against global threshold', function (done) {
+      var resolved = false;
+
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha())
+        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 }}))
+        .on('error', function (err) {
+          if (!resolved) {
+            resolved = true;
+            process.stdout.write = out;
+            assert.equal(err.message, 'Coverage failed');
+            done();
+          }
+        })
+        .on('end', function () {
+          if (!resolved) {
+            resolved = true;
+            process.stdout.write = out;
+            done(new Error('enforceThresholds did not raise an error'));
+          }
+        });
+    });
+
+    it('checks coverage fails against per file threshold', function (done) {
+      var resolved = false;
+
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha())
+        .pipe(istanbul.enforceThresholds({ thresholds: { each: 80 }}))
+        .on('error', function (err) {
+          if (!resolved) {
+            resolved = true;
+            process.stdout.write = out;
+            assert.equal(err.message, 'Coverage failed');
+            done();
+          }
+        })
+        .on('end', function () {
+          if (!resolved) {
+            resolved = true;
+            process.stdout.write = out;
+            done(new Error('enforceThresholds did not raise an error'));
+          }
+        });
+    });
+
+    it('checks coverage passes against global and per file thresholds', function (done) {
+      var resolved = false;
+
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha())
+        .pipe(istanbul.enforceThresholds({ thresholds: { global: 50, each: 45 }}))
+        .on('error', function () {
+          if (!resolved) {
+            resolved = true;
+            process.stdout.write = out;
+            done(new Error('enforceThresholds did not raise an error'));
+          }
+        })
+        .on('end', function () {
+          if (!resolved) {
+            resolved = true;
+            process.stdout.write = out;
+            done();
+          }
+        });
+    });
+
+    it('checks coverage with a custom coverage variable', function (done) {
+      var resolved = false;
+      var coverageVariable = 'CUSTOM_COVERAGE_VARIABLE';
+
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/lib/*.js' ])
+        .pipe(istanbul({ coverageVariable: coverageVariable }))
+        .pipe(istanbul.hookRequire())
+        .on('finish', function () {
+          gulp.src([ 'test/fixtures/test/*.js' ])
+            .pipe(mocha())
+            .pipe(istanbul.enforceThresholds({
+              coverageVariable: coverageVariable,
+              thresholds: { global: 100 }
+            }))
+            .on('error', function (err) {
+              if (!resolved) {
+                resolved = true;
+                process.stdout.write = out;
+                assert.equal(err.message, 'Coverage failed');
+                done();
+              }
+            })
+            .on('end', function () {
+              if (!resolved) {
+                resolved = true;
+                process.stdout.write = out;
+                done(new Error('enforceThresholds did not raise an error'));
+              }
             });
         });
     });

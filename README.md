@@ -32,6 +32,7 @@ gulp.task('test', function (cb) {
       gulp.src(['test/*.js'])
         .pipe(mocha())
         .pipe(istanbul.writeReports()) // Creating the reports after tests runned
+        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } })) // Enforce a coverage of at least 90%
         .on('end', cb);
     });
 });
@@ -176,13 +177,13 @@ Type: `Object` (optional)
 }
 ```
 
-#### dir
+##### dir
 Type: `String` (optional)
 Default: `./coverage`
 
 The folder in which the reports are to be outputted.
 
-#### reporters
+##### reporters
 Type: `Array` (optional)
 Default: `[ 'lcov', 'json', 'text', 'text-summary' ]`
 
@@ -211,6 +212,69 @@ The global variable istanbul uses to store coverage
 See also:
 - [istanbul coverageVariable][istanbul-coverage-variable]
 - [SanboxedModule][sandboxed-module-coverage-variable]
+
+
+### istanbul.enforceThresholds(opt)
+
+Checks coverage against minimum acceptable thresholds. Fails the build if any of the thresholds are not met.
+
+#### opt
+Type: `Object` (optional)
+```js
+{
+  coverageVariable: 'someVariable',
+  thresholds: {
+    global: 60,
+    each: -10
+  }
+}
+```
+
+##### coverageVariable
+Type: `String` (optional)
+Default: `'$$cov_' + new Date().getTime() + '$$'`
+
+The global variable istanbul uses to store coverage
+
+
+##### thresholds
+Type: `Object` (required)
+
+Minimum acceptable coverage thresholds. Any coverage values lower than the specified threshold will fail the build.
+
+Each threshold value can be:
+- A positive number - used as a percentage
+- A negative number - used as the maximum amount of coverage gaps
+- `false`, `null`, `undefined` or `0` - skips the coverage
+
+Thresholds can be specified across all files (`global`) or per file (`each`):
+```
+{
+  global: 80,
+  each: 60
+}
+```
+
+You can also specify a value for each metric:
+```
+{
+  global: {
+    statements: 80,
+    branches: 90,
+    lines: 70,
+    functions: -10
+  }
+  each: {
+    statements: 100,
+    branches: 70,
+    lines: -20
+  }
+}
+```
+
+#### emits
+
+A plugin error in the stream if the coverage fails
 
 License
 ------------

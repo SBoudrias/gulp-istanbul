@@ -8,6 +8,7 @@ var _ = require('lodash');
 var Report = istanbul.Report;
 var Collector = istanbul.Collector;
 var PluginError = gutil.PluginError;
+var checker = require('istanbul-threshold-checker');
 
 var PLUGIN_NAME = 'gulp-istanbul';
 var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
@@ -120,12 +121,43 @@ plugin.writeReports = function (opts) {
   cover.on('end', function () {
     var collector = new Collector();
 
-    // revert to an object if there are not macthing source files.
+    // Revert to an object if there are no matching source files.
     collector.add(global[opts.coverageVariable] || {});
 
     reporters.forEach(function (report) {
       report.writeReport(collector, true);
     });
+  }).resume();
+
+  return cover;
+};
+
+plugin.enforceThresholds = function (opts) {
+  opts = opts || {};
+  opts = _.defaults(opts, {
+    coverageVariable: COVERAGE_VARIABLE
+  });
+
+  var cover = through();
+
+  cover.on('end', function () {
+    var collector = new Collector();
+
+    // Revert to an object if there are no macthing source files.
+    collector.add(global[opts.coverageVariable] || {});
+
+    var results = checker.checkFailures(opts.thresholds, collector.getFinalCoverage());
+    var criteria = function(type) {
+      return (type.global && type.global.failed) || (type.each && type.each.failed);
+    };
+
+    if (_.any(results, criteria)) {
+      this.emit('error', new PluginError({
+        plugin: PLUGIN_NAME,
+        message: 'Coverage failed'
+      }));
+    }
+
   }).resume();
 
   return cover;
