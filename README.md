@@ -177,6 +177,18 @@ Type: `Object` (optional)
 }
 ```
 
+You can pass individual configuration to a reporter.
+```js
+{
+  dir: './coverage',
+  reporters: [ 'lcovonly', 'json', 'text', 'text-summary', CustomReport ],
+  reportOpts: { 
+    lcov: {dir: 'lcovonly', file: 'lcov.info'}
+    json: {dir: 'json', file: 'converage.json'}
+  },
+  coverageVariable: 'someVariable'
+}
+```
 ##### dir
 Type: `String` (optional)
 Default: `./coverage`
