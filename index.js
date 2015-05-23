@@ -113,7 +113,8 @@ plugin.writeReports = function (opts) {
   }
 
   reporters = reporters.map(function (r) {
-    return Report.create(r, _.clone(opts.reportOpts));
+    var reportOpts = opts.reportOpts[r] || opts.reportOpts;
+    return Report.create(r, _.clone(reportOpts));
   });
 
   var cover = through();
