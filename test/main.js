@@ -248,6 +248,30 @@ describe('gulp-istanbul', function () {
         });
     });
 
+    it('allow specifying configuration per report', function (done) {
+      process.stdout.write = function () {};
+      var opts = {
+        reporters: ['lcovonly', 'json'],
+        reportOpts: {
+          lcovonly: { dir: 'lcovonly', file: 'lcov-test.info' },
+          json: { dir: 'json', file: 'json-test.info' }
+        }
+      };
+
+      gulp.src(['test/fixtures/test/*.js'])
+        .pipe(mocha())
+        .pipe(istanbul.writeReports(opts))
+        .on('end', function() {
+          process.stdout.write = out;
+          assert(fs.existsSync('./lcovonly'));
+          assert(fs.existsSync('./lcovonly/lcov-test.info'));
+          assert(fs.existsSync('./json'));
+          assert(fs.existsSync('./json/json-test.info'));
+          process.stdout.write = out;
+          done();
+        });
+    });
+
     it('allows specifying custom reporters', function (done) {
       var ExampleReport = function() {};
       ExampleReport.TYPE = 'example';
