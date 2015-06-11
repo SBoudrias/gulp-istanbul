@@ -31,7 +31,7 @@ gulp.task('test', function (cb) {
     .on('finish', function () {
       gulp.src(['test/*.js'])
         .pipe(mocha())
-        .pipe(istanbul.writeReports()) // Creating the reports after tests runned
+        .pipe(istanbul.writeReports()) // Creating the reports after tests ran
         .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } })) // Enforce a coverage of at least 90%
         .on('end', cb);
     });
@@ -55,7 +55,7 @@ gulp.task('test', function (cb) {
   .on('finish', function () {
     gulp.src(['test/*.html'])
     .pipe(testFramework())
-    .pipe(istanbul.writeReports()) // Creating the reports after tests runned
+    .pipe(istanbul.writeReports()) // Creating the reports after tests ran
     .on('end', cb);
   });
 });
@@ -257,7 +257,7 @@ Minimum acceptable coverage thresholds. Any coverage values lower than the speci
 Each threshold value can be:
 - A positive number - used as a percentage
 - A negative number - used as the maximum amount of coverage gaps
-- A falsey value will skips the coverage
+- A falsey value will skip the coverage
 
 Thresholds can be specified across all files (`global`) or per file (`each`):
 ```
