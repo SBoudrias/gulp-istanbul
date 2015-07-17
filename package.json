@@ -1,11 +1,12 @@
 {
   "name": "gulp-istanbul",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Istanbul unit test coverage plugin for gulp.",
   "keywords": [
     "gulpplugin",
     "coverage",
     "istanbul",
+    "babel-istanbul"
     "unit test"
   ],
   "homepage": "https://github.com/SBoudrias/gulp-istanbul",
@@ -29,7 +30,7 @@
   },
   "dependencies": {
     "gulp-util": "^3.0.1",
-    "istanbul": "^0.3.2",
+    "babel-istanbul": "^0.2.10",
     "istanbul-threshold-checker": "^0.1.0",
     "lodash": "^3.0.1",
     "through2": "^0.6.3"
