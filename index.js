@@ -13,6 +13,7 @@ var checker = require('istanbul-threshold-checker');
 var PLUGIN_NAME = 'gulp-istanbul';
 var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
+var skipImports;
 var plugin = module.exports = function (opts) {
   opts = opts || {};
   _.defaults(opts, {
@@ -39,6 +40,8 @@ var plugin = module.exports = function (opts) {
 
       file.contents = new Buffer(code);
 
+      skipImports = opts.skipImports;
+
       // Parse the blank coverage object from the instrumented file and save it
       // to the global coverage variable to enable reporting on non-required
       // files, a workaround for
@@ -63,10 +66,24 @@ plugin.hookRequire = function (options) {
   var fileMap = {};
 
   istanbul.hook.unhookRequire();
+
+  var skipMatcher = function (file) {
+    if (skipImports) {
+      return file.match(skipImports) ? true : false;
+    } else {
+      return false;
+    }
+  };
+
   istanbul.hook.hookRequire(function (path) {
-    return !!fileMap[path];
+    return !!fileMap[path] || skipMatcher(path);
   }, function (code, path) {
-    return fileMap[path];
+    if (skipMatcher(path)) {
+      //console.log('File skipped: ' + path);
+      return '';
+    } else {
+      return fileMap[path];
+    }
   }, options);
 
   return through(function (file, enc, cb) {
