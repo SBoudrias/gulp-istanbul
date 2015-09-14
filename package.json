@@ -1,6 +1,6 @@
 {
   "name": "gulp-istanbul-plus",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Istanbul unit test coverage plugin for gulp.",
   "keywords": [
     "gulpplugin",
@@ -9,7 +9,7 @@
     "unit test"
   ],
   "homepage": "https://github.com/markwylde/gulp-istanbul-plus",
-  "bugs": "https://github.com/markwylde/gulp-istanbul-plusissues",
+  "bugs": "https://github.com/markwylde/gulp-istanbul-plus/issues",
   "author": {
     "name": "Simon Boudrias",
     "email": "admin@simonboudrias.com",
