@@ -1,6 +1,37 @@
 gulp-istanbul [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][depstat-image]][depstat-url]
 ===========================
 
+Difference in this project
+--------------------------
+There's no way in gulp-istanbul, istanbul or isparta to ignore certain includes, for example if you are
+doing the following:
+```javascript
+import './my-style.scss';
+// or
+import './my-style.css';
+```
+
+This branch of SBoudrias awesome work just adds the option below:
+
+```javascript
+istanbul({
+  // skip both scss and css files
+  skipImports: /\.(scss|css)$/
+})
+```
+
+The above will generate an error. A pull request was requested to the main package, but after a discussion
+it was agreed that this is a bit of a work around, and not really under the scope of gulp-stanbul.
+
+However the need still remains so it was branched into this repository where this fix (and potentially others in the
+future) can live.
+
+For more information on this feature please see the pull request discussion at:
+https://github.com/SBoudrias/gulp-istanbul/pull/68
+
+--------------------------------------------------
+
+
 [Istanbul][istanbul] unit test coverage plugin for [gulp][gulp].
 
 Works on top of any Node.js unit test framework.
@@ -182,7 +213,7 @@ You can pass individual configuration to a reporter.
 {
   dir: './coverage',
   reporters: [ 'lcovonly', 'json', 'text', 'text-summary', CustomReport ],
-  reportOpts: { 
+  reportOpts: {
     lcov: {dir: 'lcovonly', file: 'lcov.info'}
     json: {dir: 'json', file: 'converage.json'}
   },
