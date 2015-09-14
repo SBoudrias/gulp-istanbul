@@ -3,15 +3,18 @@ gulp-istanbul [![NPM version][npm-image]][npm-url] [![Build Status][travis-image
 
 Difference in this project
 --------------------------
-There's no way in gulp-istanbul, istanbul or isparta to ignore certain includes, for example if you are
-doing the following:
+There's no way in `gulp-istanbul`, `istanbul` or `isparta` to ignore certain includes, for example if you are
+doing the following `gulp-istanbul` will fail:
 ```javascript
 import './my-style.scss';
 // or
 import './my-style.css';
 ```
 
-This branch of SBoudrias awesome work just adds the option below:
+The above is often seen for people using `webpack` to transpile their code.
+
+This branch of [SBoudria](https://github.com/SBoudrias/gulp-istanbul)'s awesome work is the same only it adds
+an additional option called `skipImports` as seen below:
 
 ```javascript
 istanbul({
@@ -20,11 +23,13 @@ istanbul({
 })
 ```
 
-The above will generate an error. A pull request was requested to the main package, but after a discussion
+A pull request was requested to the main package, but after a discussion
 it was agreed that this is a bit of a work around, and not really under the scope of gulp-stanbul.
 
 However the need still remains so it was branched into this repository where this fix (and potentially others in the
 future) can live.
+
+In the future I'm sure a more long term solution will become available for projects that use css includes.
 
 For more information on this feature please see the pull request discussion at:
 https://github.com/SBoudrias/gulp-istanbul/pull/68
