@@ -78,6 +78,25 @@ plugin.hookRequire = function (options) {
   });
 };
 
+plugin.hookRunInThisContext = function (options) {
+  var fileMap = {};
+
+  istanbul.hook.unhookRunInThisContext();
+  istanbul.hook.hookRunInThisContext(function (path) {
+    return !!fileMap[path];
+  }, function (code, path) {
+    return fileMap[path];
+  }, options);
+
+  return through(function (file, enc, cb) {
+    // If the file is already required, delete it from the cache otherwise the covered
+    // version will be ignored.
+    delete require.cache[path.resolve(file.path)];
+    fileMap[file.path] = file.contents.toString();
+    return cb();
+  });
+};
+
 plugin.summarizeCoverage = function (opts) {
   opts = opts || {};
   if (!opts.coverageVariable) opts.coverageVariable = COVERAGE_VARIABLE;
