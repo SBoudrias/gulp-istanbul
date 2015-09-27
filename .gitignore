@@ -2,3 +2,5 @@ node_modules/
 coverage/
 cov-foo/
 *.orig
+json
+lcovonly

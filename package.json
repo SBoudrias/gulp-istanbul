@@ -1,6 +1,6 @@
 {
-  "name": "gulp-istanbul",
-  "version": "0.10.0",
+  "name": "gulp-istanbul-plus",
+  "version": "0.10.3",
   "description": "Istanbul unit test coverage plugin for gulp.",
   "keywords": [
     "gulpplugin",
@@ -8,8 +8,8 @@
     "istanbul",
     "unit test"
   ],
-  "homepage": "https://github.com/SBoudrias/gulp-istanbul",
-  "bugs": "https://github.com/SBoudrias/gulp-istanbul/issues",
+  "homepage": "https://github.com/markwylde/gulp-istanbul-plus",
+  "bugs": "https://github.com/markwylde/gulp-istanbul-plus/issues",
   "author": {
     "name": "Simon Boudrias",
     "email": "admin@simonboudrias.com",
@@ -21,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/SBoudrias/gulp-istanbul.git"
+    "url": "git://github.com/markwylde/gulp-istanbul-plus.git"
   },
   "scripts": {
     "pretest": "jshint index.js ./test/.",
