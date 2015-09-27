@@ -21,20 +21,24 @@ In your `gulpfile.js`:
 
 ```javascript
 var istanbul = require('gulp-istanbul');
-// We'll use mocha here, but any test framework will work
+// We'll use mocha in this example, but any test framework will work
 var mocha = require('gulp-mocha');
 
-gulp.task('test', function (cb) {
-  gulp.src(['lib/**/*.js', 'main.js'])
-    .pipe(istanbul()) // Covering files
-    .pipe(istanbul.hookRequire()) // Force `require` to return covered files
-    .on('finish', function () {
-      gulp.src(['test/*.js'])
-        .pipe(mocha())
-        .pipe(istanbul.writeReports()) // Creating the reports after tests ran
-        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } })) // Enforce a coverage of at least 90%
-        .on('end', cb);
-    });
+gulp.task('pre-test', function () {
+  return gulp.src(['lib/**/*.js'])
+    // Covering files
+    .pipe(istanbul())
+    // Force `require` to return covered files
+    .pipe(istanbul.hookRequire());
+});
+
+gulp.task('test', ['pre-test'], function () {
+  return gulp.src(['test/*.js'])
+    .pipe(mocha())
+    // Creating the reports after tests ran
+    .pipe(istanbul.writeReports())
+    // Enforce a coverage of at least 90%
+    .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 } }));
 });
 ```
 
@@ -48,16 +52,24 @@ Browser testing is hard. If you're not sure what to do, then I suggest you take 
 ```javascript
 var istanbul = require('gulp-istanbul');
 
-gulp.task('test', function (cb) {
-  gulp.src(['lib/**/*.js', 'main.js'])
-  .pipe(istanbul()) // Covering files
-  .pipe(gulp.dest('test-tmp/'))
-  .on('finish', function () {
-    gulp.src(['test/*.html'])
+
+gulp.task('pre-test', function () {
+  return gulp.src(['lib/**/*.js'])
+    // Covering files
+    .pipe(istanbul())
+    // Force `require` to return covered files
+    .pipe(istanbul.hookRequire())
+    // Write the covered files to a temporary directory
+    .pipe(gulp.dest('test-tmp/'));
+});
+
+gulp.task('test', ['pre-test'], function () {
+  // Make sure your tests files are requiring files from the
+  // test-tmp/ directory
+  return gulp.src(['test/*.js'])
     .pipe(testFramework())
-    .pipe(istanbul.writeReports()) // Creating the reports after tests ran
-    .on('end', cb);
-  });
+    // Creating the reports after tests ran
+    .pipe(istanbul.writeReports());
 });
 ```
 
@@ -182,7 +194,7 @@ You can pass individual configuration to a reporter.
 {
   dir: './coverage',
   reporters: [ 'lcovonly', 'json', 'text', 'text-summary', CustomReport ],
-  reportOpts: { 
+  reportOpts: {
     lcov: {dir: 'lcovonly', file: 'lcov.info'}
     json: {dir: 'json', file: 'converage.json'}
   },
