@@ -32,7 +32,7 @@
     "istanbul": "^0.3.2",
     "istanbul-threshold-checker": "^0.1.0",
     "lodash": "^3.0.1",
-    "through2": "^0.6.3"
+    "through2": "^2.0.0"
   },
   "devDependencies": {
     "gulp": "^3.6.2",
@@ -42,9 +42,5 @@
     "mocha": "^2.0.1",
     "rimraf": "^2.2.8"
   },
-  "licenses": [
-    {
-      "type": "MIT"
-    }
-  ]
+  "license": "MIT"
 }
