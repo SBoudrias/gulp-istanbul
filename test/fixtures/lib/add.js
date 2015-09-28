@@ -1,9 +1,9 @@
 'use strict';
 
-exports.add = function (a, b) {
+exports.add = function addFunc(a, b) {
   return a + b;
 };
 
-exports.missed = function () {
+exports.missed = function missedFunc() {
   return "not covered";
 };

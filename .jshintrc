@@ -18,5 +18,17 @@
     "strict": true,
     "trailing": true,
     "smarttabs": true,
-    "white": true
+    "white": true,
+
+    "overrides": {
+      "test/**/global*.js": {
+        "strict": false,
+        "unused": false
+      }
+    },
+
+    "globals": {
+        "addFunc": true,
+        "missedFunc": true
+    }
 }
