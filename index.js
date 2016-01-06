@@ -3,7 +3,7 @@
 var through = require('through2').obj;
 var path = require('path');
 var checker = require('istanbul-threshold-checker');
-// Make sure istanbul is `require`d after the istanbul-threshold-checker to use the istanbul version 
+// Make sure istanbul is `require`d after the istanbul-threshold-checker to use the istanbul version
 // defined in this package.json instead of the one defined in istanbul-threshold-checker.
 var istanbul = require('istanbul');
 var gutil = require('gulp-util');
@@ -149,18 +149,71 @@ plugin.enforceThresholds = function (opts) {
     // Revert to an object if there are no macthing source files.
     collector.add(global[opts.coverageVariable] || {});
 
-    var results = checker.checkFailures(opts.thresholds, collector.getFinalCoverage());
-    var criteria = function(type) {
-      return (type.global && type.global.failed) || (type.each && type.each.failed);
+    var finalCoverage = collector.getFinalCoverage();
+    var results = checker.checkFailures(opts.thresholds, finalCoverage);
+
+    var hasGlobalCoverageFailure = function(type) {
+      return (type.global && type.global.failed);
     };
 
-    if (_.any(results, criteria)) {
+    var hasFileCoverageFailures = function(type) {
+      return (type.each && type.each.failed);
+    };
+
+    var isFailure = function(type) {
+      return hasGlobalCoverageFailure(type) || hasFileCoverageFailures(type);
+    };
+
+    var getThreshold = function(type, result) {
+      var typeValue = opts.thresholds[type];
+
+      if (_.isNumber(typeValue)) {
+        return typeValue.toString();
+      }
+
+      return opts.thresholds[type][result.type].toString();
+    };
+
+    var generateErrorMessage = function(results) {
+      var errors = [];
+
+      _.forEach(results, function(result) {
+        if (hasGlobalCoverageFailure(result)) {
+          errors.unshift(
+            '\n' +
+            'Coverage for ' +
+            result.type +
+            ' (' +
+            result.global.value +
+            '%) does not meet the global threshold (' +
+            getThreshold('global', result) +
+            '%)'
+          );
+        }
+
+        if (hasFileCoverageFailures(result)) {
+          errors.push(
+            '\n' +
+            'Coverage for ' +
+            result.type +
+            ' in these files does not meet the threshold (' +
+            getThreshold('each', result) +
+            '%): \n\t' + result.each.failures.join('\n\t')
+          );
+        }
+      });
+
+      return errors;
+    };
+
+    if (_.any(results, isFailure)) {
+      var errors = generateErrorMessage(results);
+
       this.emit('error', new PluginError({
         plugin: PLUGIN_NAME,
-        message: 'Coverage failed'
+        message: 'Coverage failed\n' + errors.join('\n')
       }));
     }
-
   }).resume();
 
   return cover;

@@ -360,7 +360,8 @@ describe('gulp-istanbul', function () {
           if (!resolved) {
             resolved = true;
             process.stdout.write = out;
-            assert.equal(err.message, 'Coverage failed');
+            assert(err.message.indexOf('Coverage failed') !== -1);
+            assert(err.message.indexOf('Coverage for functions (50%) does not meet the global threshold (90%)') !== -1);
             done();
           }
         })
@@ -384,7 +385,8 @@ describe('gulp-istanbul', function () {
           if (!resolved) {
             resolved = true;
             process.stdout.write = out;
-            assert.equal(err.message, 'Coverage failed');
+            assert(err.message.indexOf('Coverage failed') !== -1);
+            assert(err.message.indexOf('Coverage for lines in these files does not meet the threshold (80%)') !== -1);
             done();
           }
         })
@@ -393,6 +395,32 @@ describe('gulp-istanbul', function () {
             resolved = true;
             process.stdout.write = out;
             done(new Error('enforceThresholds did not raise an error'));
+          }
+        });
+    });
+
+    it('checks coverage fails against individual global and per file thresholds', function (done) {
+      var resolved = false;
+
+      process.stdout.write = function () {};
+      gulp.src([ 'test/fixtures/test/*.js' ])
+        .pipe(mocha())
+        .pipe(istanbul.enforceThresholds({ thresholds: { global: { functions: 90 }, each: { lines: 80 } }}))
+        .on('error', function (err) {
+          if (!resolved) {
+            resolved = true;
+            process.stdout.write = out;
+            assert(err.message.indexOf('Coverage failed') !== -1);
+            assert(err.message.indexOf('Coverage for functions (50%) does not meet the global threshold (90%)') !== -1);
+            assert(err.message.indexOf('Coverage for lines in these files does not meet the threshold (80%)') !== -1);
+            done();
+          }
+        })
+        .on('end', function () {
+          if (!resolved) {
+            resolved = true;
+            process.stdout.write = out;
+            done();
           }
         });
     });
@@ -439,7 +467,9 @@ describe('gulp-istanbul', function () {
               if (!resolved) {
                 resolved = true;
                 process.stdout.write = out;
-                assert.equal(err.message, 'Coverage failed');
+                assert(err.message.indexOf('Coverage failed') !== -1);
+                assert(err.message.indexOf('Coverage for statements (75%) does not meet the global threshold (100%)') !== -1);
+                assert(err);
                 done();
               }
             })
