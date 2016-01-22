@@ -154,7 +154,7 @@ plugin.enforceThresholds = function (opts) {
       return (type.global && type.global.failed) || (type.each && type.each.failed);
     };
 
-    if (_.any(results, criteria)) {
+    if (_.some(results, criteria)) {
       this.emit('error', new PluginError({
         plugin: PLUGIN_NAME,
         message: 'Coverage failed'
