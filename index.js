@@ -3,7 +3,7 @@
 var through = require('through2').obj;
 var path = require('path');
 var checker = require('istanbul-threshold-checker');
-// Make sure istanbul is `require`d after the istanbul-threshold-checker to use the istanbul version 
+// Make sure istanbul is `require`d after the istanbul-threshold-checker to use the istanbul version
 // defined in this package.json instead of the one defined in istanbul-threshold-checker.
 var istanbul = require('istanbul');
 var gutil = require('gulp-util');
@@ -30,12 +30,12 @@ var plugin = module.exports = function (opts) {
     if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
     }
-
-    instrumenter.instrument(file.contents.toString(), file.path, function (err, code) {
+    var filepath = getNormalizedPath(file.path);
+    instrumenter.instrument(file.contents.toString(), filepath, function (err, code) {
       if (err) {
         return cb(new PluginError(
           PLUGIN_NAME,
-          'Unable to parse ' + file.path + '\n\n' + err.message + '\n'
+          'Unable to parse ' + filepath + '\n\n' + err.message + '\n'
         ));
       }
 
@@ -52,7 +52,7 @@ var plugin = module.exports = function (opts) {
         if (covStubMatch !== null) {
           var covStub = JSON.parse(covStubMatch[0]);
           global[opts.coverageVariable] = global[opts.coverageVariable] || {};
-          global[opts.coverageVariable][path.resolve(file.path)] = covStub;
+          global[opts.coverageVariable][path.resolve(filepath)] = covStub;
         }
       }
 
@@ -66,16 +66,16 @@ plugin.hookRequire = function (options) {
 
   istanbul.hook.unhookRequire();
   istanbul.hook.hookRequire(function (path) {
-    return !!fileMap[path];
+    return !!fileMap[getNormalizedPath(path)];
   }, function (code, path) {
-    return fileMap[path];
+    return fileMap[getNormalizedPath(path)];
   }, options);
 
   return through(function (file, enc, cb) {
     // If the file is already required, delete it from the cache otherwise the covered
     // version will be ignored.
     delete require.cache[path.resolve(file.path)];
-    fileMap[file.path] = file.contents.toString();
+    fileMap[getNormalizedPath(file.path)] = file.contents.toString();
     return cb();
   });
 };
@@ -165,3 +165,8 @@ plugin.enforceThresholds = function (opts) {
 
   return cover;
 };
+
+function getNormalizedPath(filepath) {
+  if (path.sep !== '\\') return filepath;
+  return filepath.replace(/\//g, '\\');
+}
