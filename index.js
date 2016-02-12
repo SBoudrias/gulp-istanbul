@@ -15,6 +15,11 @@ var PluginError = gutil.PluginError;
 var PLUGIN_NAME = 'gulp-istanbul';
 var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
+function getNormalizedPath(filepath) {
+  if (path.sep !== '\\') return filepath;
+  return filepath.replace(/\//g, '\\');
+}
+
 var plugin = module.exports = function (opts) {
   opts = opts || {};
   _.defaults(opts, {
@@ -165,8 +170,3 @@ plugin.enforceThresholds = function (opts) {
 
   return cover;
 };
-
-function getNormalizedPath(filepath) {
-  if (path.sep !== '\\') return filepath;
-  return filepath.replace(/\//g, '\\');
-}

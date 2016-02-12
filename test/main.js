@@ -9,6 +9,7 @@ var istanbul = require('../');
 var isparta = require('isparta');
 var mocha = require('gulp-mocha');
 var Report = require('istanbul').Report;
+var path = require('path');
 
 var out = process.stdout.write.bind(process.stdout);
 
@@ -45,7 +46,7 @@ describe('gulp-istanbul', function () {
 
     it('throw when receiving a stream', function (done) {
       var srcFile = new gutil.File({
-        path: 'test/fixtures/lib/add.js',
+        path: path.join('test', 'fixtures', 'lib', 'add.js'),
         cwd: 'test/',
         base: 'test/fixtures/lib',
         contents: fs.createReadStream('test/fixtures/lib/add.js')
@@ -62,13 +63,13 @@ describe('gulp-istanbul', function () {
 
     it('handles invalid JS files', function (done) {
       var srcFile = new gutil.File({
-        path: 'test/fixtures/lib/add.js',
+        path: path.join('test', 'fixtures', 'lib', 'add.js'),
         cwd: 'test/',
         base: 'test/fixtures/lib',
         contents: new Buffer('var a {}')
       });
       this.stream.on('error', function (err) {
-        assert(err.message.indexOf('test/fixtures/lib/add.js') >= 0);
+        assert(err.message.indexOf(path.join('test', 'fixtures', 'lib', 'add.js')) >= 0);
         done();
       });
       this.stream.write(srcFile);
