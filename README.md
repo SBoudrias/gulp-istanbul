@@ -57,8 +57,6 @@ gulp.task('pre-test', function () {
   return gulp.src(['lib/**/*.js'])
     // Covering files
     .pipe(istanbul())
-    // Force `require` to return covered files
-    .pipe(istanbul.hookRequire())
     // Write the covered files to a temporary directory
     .pipe(gulp.dest('test-tmp/'));
 });
