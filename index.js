@@ -22,7 +22,6 @@ var plugin = module.exports = function (opts) {
     instrumenter: istanbul.Instrumenter
   });
   opts.includeUntested = opts.includeUntested === true;
-  opts.resolveAbsolutePaths = opts.resolveAbsolutePaths === true;
 
   var instrumenter = new opts.instrumenter(opts);
 
@@ -30,10 +29,6 @@ var plugin = module.exports = function (opts) {
     cb = _.once(cb);
     if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
-    }
-
-    if (opts.resolveAbsolutePaths) {
-      file.path = path.resolve(file.path);
     }
 
     instrumenter.instrument(file.contents.toString(), file.path, function (err, code) {
