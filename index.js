@@ -3,7 +3,7 @@
 var through = require('through2').obj;
 var path = require('path');
 var checker = require('istanbul-threshold-checker');
-// Make sure istanbul is `require`d after the istanbul-threshold-checker to use the istanbul version 
+// Make sure istanbul is `require`d after the istanbul-threshold-checker to use the istanbul version
 // defined in this package.json instead of the one defined in istanbul-threshold-checker.
 var istanbul = require('istanbul');
 var gutil = require('gulp-util');
@@ -52,7 +52,7 @@ var plugin = module.exports = function (opts) {
         if (covStubMatch !== null) {
           var covStub = JSON.parse(covStubMatch[0]);
           global[opts.coverageVariable] = global[opts.coverageVariable] || {};
-          global[opts.coverageVariable][path.resolve(file.path)] = covStub;
+          global[opts.coverageVariable][file.path] = covStub;
         }
       }
 
