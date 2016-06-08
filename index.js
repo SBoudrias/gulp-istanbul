@@ -8,6 +8,7 @@ var checker = require('istanbul-threshold-checker');
 var istanbul = require('istanbul');
 var gutil = require('gulp-util');
 var _ = require('lodash');
+var applySourceMap = require('vinyl-sourcemaps-apply');
 var Report = istanbul.Report;
 var Collector = istanbul.Collector;
 var PluginError = gutil.PluginError;
@@ -23,9 +24,23 @@ var plugin = module.exports = function (opts) {
   });
   opts.includeUntested = opts.includeUntested === true;
 
-  var instrumenter = new opts.instrumenter(opts);
+  var defaultInstrumenter = new opts.instrumenter(opts);
 
   return through(function (file, enc, cb) {
+    var instrumenter;
+    if (file.sourceMap) {
+      var fileOpts = _.defaultsDeep(_.cloneDeep(opts), {
+        codeGenerationOptions: {
+          sourceMap: path.basename(file.path),
+          sourceMapWithCode: true,
+          file: file.path
+        }
+      });
+      instrumenter = new opts.instrumenter(fileOpts);
+    } else {
+      instrumenter = defaultInstrumenter;
+    }
+
     cb = _.once(cb);
     if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
@@ -37,6 +52,11 @@ var plugin = module.exports = function (opts) {
           PLUGIN_NAME,
           'Unable to parse ' + file.path + '\n\n' + err.message + '\n'
         ));
+      }
+
+      var sourceMap = instrumenter.lastSourceMap();
+      if (sourceMap !== null) {
+          applySourceMap(file, sourceMap.toString());
       }
 
       file.contents = new Buffer(code);

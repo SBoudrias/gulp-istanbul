@@ -8,6 +8,7 @@ var gulp = require('gulp');
 var istanbul = require('../');
 var isparta = require('isparta');
 var mocha = require('gulp-mocha');
+var sourcemaps = require('gulp-sourcemaps');
 var Report = require('istanbul').Report;
 
 var out = process.stdout.write.bind(process.stdout);
@@ -19,16 +20,18 @@ describe('gulp-istanbul', function () {
     require.cache = {};
   });
 
-  var libFile = new gutil.File({
-    path: 'test/fixtures/lib/add.js',
-    cwd: 'test/',
-    base: 'test/fixtures/lib',
-    contents: fs.readFileSync('test/fixtures/lib/add.js')
-  });
+  var libFile;
 
   describe('istanbul()', function () {
     beforeEach(function () {
       this.stream = istanbul();
+      libFile = new gutil.File({
+        path: 'test/fixtures/lib/add.js',
+        cwd: 'test/',
+        base: 'test/fixtures/lib',
+        contents: fs.readFileSync('test/fixtures/lib/add.js')
+      });
+
     });
 
     it('instrument files', function (done) {
@@ -72,6 +75,29 @@ describe('gulp-istanbul', function () {
         done();
       });
       this.stream.write(srcFile);
+      this.stream.end();
+    });
+
+    it('is compatible to gulp-sourcemaps', function(done) {
+      var initStream = sourcemaps.init();
+      var sourceMapStream = initStream.pipe(this.stream);
+      sourceMapStream.on('data', function (file) {
+        assert(file.sourceMap !== undefined);
+        assert.equal(file.sourceMap.file, file.path);
+        done();
+      });
+
+      initStream.write(libFile);
+      initStream.end();
+    });
+
+    it('creates sourcemaps only if requested', function(done) {
+      this.stream.on('data', function (file) {
+        assert(file.sourceMap === undefined);
+        done();
+      });
+
+      this.stream.write(libFile);
       this.stream.end();
     });
   });
