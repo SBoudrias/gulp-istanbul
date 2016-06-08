@@ -28,11 +28,14 @@ var plugin = module.exports = function (opts) {
 
   return through(function (file, enc, cb) {
     var instrumenter;
+    var fileContents = file.contents.toString();
     if (file.sourceMap) {
       var fileOpts = _.defaultsDeep(_.cloneDeep(opts), {
         codeGenerationOptions: {
-          sourceMap: path.basename(file.path),
+          sourceMap: file.sourceMap.file,
           sourceMapWithCode: true,
+          sourceContent: fileContents,
+          sourceMapRoot: file.sourceMap.sourceRoot,
           file: file.path
         }
       });
@@ -46,7 +49,7 @@ var plugin = module.exports = function (opts) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
     }
 
-    instrumenter.instrument(file.contents.toString(), file.path, function (err, code) {
+    instrumenter.instrument(fileContents, file.path, function (err, code) {
       if (err) {
         return cb(new PluginError(
           PLUGIN_NAME,

@@ -91,6 +91,28 @@ describe('gulp-istanbul', function () {
       initStream.end();
     });
 
+    it('handles existing source maps', function(done) {
+        var initStream = sourcemaps.init();
+        var sourceMapStream = initStream.pipe(this.stream);
+        sourceMapStream.on('data', function (file) {
+          assert.equal(file.sourceMap.sourceRoot, 'testSourceRoot');
+          assert(file.sourceMap.sources.indexOf('testInputFile.js') >= 0);
+          done();
+        });
+
+        libFile.sourceMap = {
+          version: 3,
+          sources: [ 'add.js' ],
+          names: [ 'exports', 'add', 'a', 'b', 'missed' ],
+          mappings: ';;;;;;;;;AAEAA,OAAA,CAAQC,GAAR,GAAc,UAAUC,CAAV,EAAaC,CAAb,EAAgB;AAAA,I,sCAAA;AAAA,I,sCAAA;AAAA,IAC5B,OAAOD,CAAA,GAAIC,CAAX,CAD4B;AAAA,CAA9B,C;;AAIAH,OAAA,CAAQI,MAAR,GAAiB,YAAY;AAAA,I,sCAAA;AAAA,I,sCAAA;AAAA,IAC3B,OAAO,aAAP,CAD2B;AAAA,CAA7B',
+          file: 'testInputFile.js',
+          sourcesContent: [ '' ],
+          sourceRoot: 'testSourceRoot'
+        };
+        initStream.write(libFile);
+        initStream.end();
+    });
+
     it('creates sourcemaps only if requested', function(done) {
       this.stream.on('data', function (file) {
         assert(file.sourceMap === undefined);
