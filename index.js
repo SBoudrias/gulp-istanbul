@@ -24,13 +24,12 @@ var plugin = module.exports = function (opts) {
   });
   opts.includeUntested = opts.includeUntested === true;
 
-  var defaultInstrumenter = new opts.instrumenter(opts);
-
   return through(function (file, enc, cb) {
-    var instrumenter;
     var fileContents = file.contents.toString();
+    var fileOpts = _.cloneDeep(opts);
+
     if (file.sourceMap) {
-      var fileOpts = _.defaultsDeep(_.cloneDeep(opts), {
+      fileOpts = _.defaultsDeep(fileOpts, {
         codeGenerationOptions: {
           sourceMap: file.sourceMap.file,
           sourceMapWithCode: true,
@@ -39,10 +38,8 @@ var plugin = module.exports = function (opts) {
           file: file.path
         }
       });
-      instrumenter = new opts.instrumenter(fileOpts);
-    } else {
-      instrumenter = defaultInstrumenter;
     }
+    var instrumenter = new opts.instrumenter(fileOpts);
 
     cb = _.once(cb);
     if (!(file.contents instanceof Buffer)) {
