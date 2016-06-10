@@ -71,6 +71,23 @@ gulp.task('test', ['pre-test'], function () {
 });
 ```
 
+#### Source Maps
+gulp-istanbul supports [gulp-sourcemaps][gulp-sourcemaps] when instrumenting:
+
+
+```javascript
+gulp.task('pre-test', function () {
+  return gulp.src(['lib/**/*.js'])
+    // optionally load existing source maps
+    .pipe(sourcemaps.init())
+    // Covering files
+    .pipe(istanbul())
+    .pipe(sourcemaps.write('.'))
+    // Write the covered files to a temporary directory
+    .pipe(gulp.dest('test-tmp/'));
+});
+```
+
 API
 --------------
 
@@ -305,6 +322,7 @@ License
 
 [istanbul]: http://gotwarlost.github.io/istanbul/
 [gulp]: https://github.com/gulpjs/gulp
+[gulp-sourcemaps]: https://github.com/floridoo/gulp-sourcemaps
 
 [npm-url]: https://npmjs.org/package/gulp-istanbul
 [npm-image]: https://badge.fury.io/js/gulp-istanbul.svg
