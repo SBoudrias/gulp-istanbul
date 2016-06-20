@@ -1,6 +1,6 @@
 {
-  "name": "gulp-istanbul",
-  "version": "1.0.0",
+  "name": "sl-gulp",
+  "version": "0.0.2",
   "description": "Istanbul unit test coverage plugin for gulp.",
   "keywords": [
     "gulpplugin",
@@ -21,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/SBoudrias/gulp-istanbul.git"
+    "url": "https://github.com/Sealights/sl-gulp.git"
   },
   "scripts": {
     "pretest": "jshint index.js ./test/.",
@@ -32,6 +32,10 @@
     "istanbul": "^0.4.0",
     "istanbul-threshold-checker": "^0.1.0",
     "lodash": "^4.0.0",
+    "sl-cia": "^2.0.73",
+    "sl-node": "^2.0.76",
+    "sl-node-cover": "^0.4.16",
+    "sl-node-mocha": "^1.0.23",
     "through2": "^2.0.0",
     "vinyl-sourcemaps-apply": "^0.2.1"
   },
