@@ -6,6 +6,8 @@ var checker = require('istanbul-threshold-checker');
 // Make sure istanbul is `require`d after the istanbul-threshold-checker to use the istanbul version
 // defined in this package.json instead of the one defined in istanbul-threshold-checker.
 var istanbul = require('sl-node-cover');
+var cia = require('sl-cia');
+var needle = require('needle');
 var gutil = require('gulp-util');
 var _ = require('lodash');
 var applySourceMap = require('vinyl-sourcemaps-apply');
@@ -184,4 +186,29 @@ plugin.enforceThresholds = function (opts) {
   }).resume();
 
   return cover;
+};
+
+plugin.build = function (options) {
+  var buildArguments = {};
+  buildArguments.branch = 'master';
+  buildArguments.build = '10';
+  buildArguments.appname = 'app1';
+  buildArguments.workspacepath = '.';
+  buildArguments.scm = 'git';
+  buildArguments.technology = 'nodejs';
+
+  var cfg = {};
+  cfg.server = 'https://dev-kobi-gw.sealights.co/api';
+  cfg.customerId = 'cus1';
+
+  var diffService = new cia.DiffService(cfg, needle);
+  var buildDiffProcess = new cia.BuildDiffProcess(cfg, diffService, cia.sourceControlProviders, null);
+
+  return through(function (file, enc, cb) {
+    buildDiffProcess.run(buildArguments).then(function () {
+      return cb();
+    }).catch(function (err) {
+      return cb();
+    });
+  });
 };

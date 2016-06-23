@@ -1,6 +1,6 @@
 {
   "name": "sl-gulp",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Sealights plugin for gulp.",
   "keywords": [
     "gulpplugin",
@@ -32,6 +32,7 @@
     "istanbul": "^0.4.0",
     "istanbul-threshold-checker": "^0.1.0",
     "lodash": "^4.0.0",
+    "sl-cia": "^2.0.73",
     "sl-node": "^2.0.76",
     "sl-node-cover": "^0.4.16",
     "sl-node-mocha": "^1.0.23",
