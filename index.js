@@ -48,6 +48,15 @@ var plugin = module.exports = function (opts) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
     }
 
+    var appData = {};
+    appData.branchName = 'master';
+    appData.buildName = '2';
+    appData.appName = 'app1';
+
+    var metaData = {};
+    metaData.appData = appData;
+    metaData.relativePath = 'lib/math.js';
+
     instrumenter.instrument(fileContents, file.path, function (err, code) {
       if (err) {
         return cb(new PluginError(
@@ -79,7 +88,7 @@ var plugin = module.exports = function (opts) {
       }
 
       return cb(err, file);
-    });
+    }, metaData);
   });
 };
 
@@ -191,7 +200,7 @@ plugin.enforceThresholds = function (opts) {
 plugin.build = function (options) {
   var buildArguments = {};
   buildArguments.branch = 'master';
-  buildArguments.build = '10';
+  buildArguments.build = '2';
   buildArguments.appname = 'app1';
   buildArguments.workspacepath = '.';
   buildArguments.scm = 'git';
