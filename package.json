@@ -1,6 +1,6 @@
 {
   "name": "sl-gulp",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Sealights plugin for gulp.",
   "keywords": [
     "gulpplugin",
