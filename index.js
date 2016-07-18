@@ -5,7 +5,11 @@ var path = require('path');
 var checker = require('istanbul-threshold-checker');
 // Make sure istanbul is `require`d after the istanbul-threshold-checker to use the istanbul version
 // defined in this package.json instead of the one defined in istanbul-threshold-checker.
-var istanbul = require('istanbul');
+var istanbul = require('sl-node-cover');
+var cia = require('sl-cia');
+var slNode = require('sl-node');
+var needle = require('needle');
+var fs = require('fs');
 var gutil = require('gulp-util');
 var _ = require('lodash');
 var applySourceMap = require('vinyl-sourcemaps-apply');
@@ -15,6 +19,7 @@ var PluginError = gutil.PluginError;
 
 var PLUGIN_NAME = 'gulp-istanbul';
 var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
+var SEALIGHTS_JSON_FILENAME = "./sealights.json";
 
 var plugin = module.exports = function (opts) {
   opts = opts || {};
@@ -45,6 +50,19 @@ var plugin = module.exports = function (opts) {
     if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
     }
+
+    var config = readConfigFile();
+
+    var appData = {};
+    appData.branchName = config.branch;
+    appData.buildName = config.build;
+    appData.appName = config.appName;
+
+    var metaData = {};
+    metaData.appData = appData;
+
+    metaData.relativePath = file.path.substring(file.cwd.length + 1);
+    //metaData.relativePath = 'lib/math.js';
 
     instrumenter.instrument(fileContents, file.path, function (err, code) {
       if (err) {
@@ -77,7 +95,7 @@ var plugin = module.exports = function (opts) {
       }
 
       return cb(err, file);
-    });
+    }, metaData);
   });
 };
 
@@ -185,3 +203,55 @@ plugin.enforceThresholds = function (opts) {
 
   return cover;
 };
+
+plugin.build = function (options) {
+  var config = readConfigFileAndUpdateBuild();
+
+  var buildArguments = {};
+  buildArguments.branch = config.branch;
+  buildArguments.build = config.build;
+  buildArguments.appname = config.appName;
+  buildArguments.workspacepath = '.';
+  buildArguments.scm = 'git';
+  buildArguments.technology = 'nodejs';
+
+  var cfg = {};
+  cfg.server = config.server;
+  cfg.customerId = config.customerId;
+
+  var diffService = new cia.DiffService(cfg, needle);
+  var buildDiffProcess = new cia.BuildDiffProcess(cfg, diffService, cia.sourceControlProviders, null);
+
+  return through(function (file, enc, cb) {
+    buildDiffProcess.run(buildArguments).then(function () {
+      return cb();
+    }).catch(function (err) {
+      return cb();
+    });
+  });
+};
+
+plugin.cucumber = function (options) {
+  slNode.init({configFilename: ''});
+
+  return through(function (file, enc, cb) {
+    return cb();
+  });
+};
+
+function readConfigFile(){
+  var config = fs.readFileSync(SEALIGHTS_JSON_FILENAME);
+  config = JSON.parse((config));
+
+  return config;
+}
+
+function readConfigFileAndUpdateBuild(){
+  var config = fs.readFileSync(SEALIGHTS_JSON_FILENAME);
+  config = JSON.parse((config));
+
+  config.build = Date.now().toString();
+  fs.writeFileSync(SEALIGHTS_JSON_FILENAME, JSON.stringify(config));
+
+  return config;
+}
