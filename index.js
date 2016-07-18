@@ -7,6 +7,7 @@ var checker = require('istanbul-threshold-checker');
 // defined in this package.json instead of the one defined in istanbul-threshold-checker.
 var istanbul = require('sl-node-cover');
 var cia = require('sl-cia');
+var slNode = require('sl-node');
 var needle = require('needle');
 var fs = require('fs');
 var gutil = require('gulp-util');
@@ -227,6 +228,14 @@ plugin.build = function (options) {
     }).catch(function (err) {
       return cb();
     });
+  });
+};
+
+plugin.cucumber = function (options) {
+  slNode.init({configFilename: ''});
+
+  return through(function (file, enc, cb) {
+    return cb();
   });
 };
 
