@@ -15,9 +15,8 @@ var PluginError = gutil.PluginError;
 var PLUGIN_NAME = 'gulp-istanbul';
 var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
-function getNormalizedPath(filepath) {
-  if (path.sep !== '\\') return filepath;
-  return filepath.replace(/\//g, '\\');
+function normalizePathSep(filepath) {
+  return filepath.replace(/\//g, path.sep);
 }
 
 var plugin = module.exports = function (opts) {
@@ -35,7 +34,7 @@ var plugin = module.exports = function (opts) {
     if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
     }
-    var filepath = getNormalizedPath(file.path);
+    var filepath = normalizePathSep(file.path);
     instrumenter.instrument(file.contents.toString(), filepath, function (err, code) {
       if (err) {
         return cb(new PluginError(
@@ -71,16 +70,16 @@ plugin.hookRequire = function (options) {
 
   istanbul.hook.unhookRequire();
   istanbul.hook.hookRequire(function (path) {
-    return !!fileMap[getNormalizedPath(path)];
+    return !!fileMap[normalizePathSep(path)];
   }, function (code, path) {
-    return fileMap[getNormalizedPath(path)];
+    return fileMap[normalizePathSep(path)];
   }, options);
 
   return through(function (file, enc, cb) {
     // If the file is already required, delete it from the cache otherwise the covered
     // version will be ignored.
     delete require.cache[path.resolve(file.path)];
-    fileMap[getNormalizedPath(file.path)] = file.contents.toString();
+    fileMap[normalizePathSep(file.path)] = file.contents.toString();
     return cb();
   });
 };
