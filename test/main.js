@@ -8,6 +8,7 @@ var gulp = require('gulp');
 var istanbul = require('../');
 var isparta = require('isparta');
 var mocha = require('gulp-mocha');
+var sourcemaps = require('gulp-sourcemaps');
 var Report = require('istanbul').Report;
 var path = require('path');
 
@@ -20,16 +21,18 @@ describe('gulp-istanbul', function () {
     require.cache = {};
   });
 
-  var libFile = new gutil.File({
-    path: 'test/fixtures/lib/add.js',
-    cwd: 'test/',
-    base: 'test/fixtures/lib',
-    contents: fs.readFileSync('test/fixtures/lib/add.js')
-  });
+  var libFile;
 
   describe('istanbul()', function () {
     beforeEach(function () {
       this.stream = istanbul();
+      libFile = new gutil.File({
+        path: 'test/fixtures/lib/add.js',
+        cwd: 'test/',
+        base: 'test/fixtures/lib',
+        contents: fs.readFileSync('test/fixtures/lib/add.js')
+      });
+
     });
 
     it('instrument files', function (done) {
@@ -73,6 +76,51 @@ describe('gulp-istanbul', function () {
         done();
       });
       this.stream.write(srcFile);
+      this.stream.end();
+    });
+
+    it('is compatible to gulp-sourcemaps', function(done) {
+      var initStream = sourcemaps.init();
+      var sourceMapStream = initStream.pipe(this.stream);
+      sourceMapStream.on('data', function (file) {
+        assert(file.sourceMap !== undefined);
+        assert.equal(file.sourceMap.file, file.path);
+        done();
+      });
+
+      initStream.write(libFile);
+      initStream.end();
+    });
+
+    it('handles existing source maps', function(done) {
+        var initStream = sourcemaps.init();
+        var sourceMapStream = initStream.pipe(this.stream);
+        sourceMapStream.on('data', function (file) {
+          assert.equal(file.sourceMap.sourceRoot, 'testSourceRoot');
+          assert(file.sourceMap.sources.indexOf('testInputFile.js') >= 0);
+          done();
+        });
+
+        libFile.sourceMap = {
+          version: 3,
+          sources: [ 'add.js' ],
+          names: [ 'exports', 'add', 'a', 'b', 'missed' ],
+          mappings: ';;;;;;;;;AAEAA,OAAA,CAAQC,GAAR,GAAc,UAAUC,CAAV,EAAaC,CAAb,EAAgB;AAAA,I,sCAAA;AAAA,I,sCAAA;AAAA,IAC5B,OAAOD,CAAA,GAAIC,CAAX,CAD4B;AAAA,CAA9B,C;;AAIAH,OAAA,CAAQI,MAAR,GAAiB,YAAY;AAAA,I,sCAAA;AAAA,I,sCAAA;AAAA,IAC3B,OAAO,aAAP,CAD2B;AAAA,CAA7B',
+          file: 'testInputFile.js',
+          sourcesContent: [ '' ],
+          sourceRoot: 'testSourceRoot'
+        };
+        initStream.write(libFile);
+        initStream.end();
+    });
+
+    it('creates sourcemaps only if requested', function(done) {
+      this.stream.on('data', function (file) {
+        assert(file.sourceMap === undefined);
+        done();
+      });
+
+      this.stream.write(libFile);
       this.stream.end();
     });
   });

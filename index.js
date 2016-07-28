@@ -8,6 +8,7 @@ var checker = require('istanbul-threshold-checker');
 var istanbul = require('istanbul');
 var gutil = require('gulp-util');
 var _ = require('lodash');
+var applySourceMap = require('vinyl-sourcemaps-apply');
 var Report = istanbul.Report;
 var Collector = istanbul.Collector;
 var PluginError = gutil.PluginError;
@@ -27,20 +28,40 @@ var plugin = module.exports = function (opts) {
   });
   opts.includeUntested = opts.includeUntested === true;
 
-  var instrumenter = new opts.instrumenter(opts);
-
   return through(function (file, enc, cb) {
+    var fileContents = file.contents.toString();
+    var fileOpts = _.cloneDeep(opts);
+
+    if (file.sourceMap) {
+      fileOpts = _.defaultsDeep(fileOpts, {
+        codeGenerationOptions: {
+          sourceMap: file.sourceMap.file,
+          sourceMapWithCode: true,
+          sourceContent: fileContents,
+          sourceMapRoot: file.sourceMap.sourceRoot,
+          file: normalizePathSep(file.path)
+        }
+      });
+    }
+    var instrumenter = new opts.instrumenter(fileOpts);
+
     cb = _.once(cb);
     if (!(file.contents instanceof Buffer)) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
     }
+
     var filepath = normalizePathSep(file.path);
-    instrumenter.instrument(file.contents.toString(), filepath, function (err, code) {
+    instrumenter.instrument(fileContents, filepath, function (err, code) {
       if (err) {
         return cb(new PluginError(
           PLUGIN_NAME,
           'Unable to parse ' + filepath + '\n\n' + err.message + '\n'
         ));
+      }
+
+      var sourceMap = instrumenter.lastSourceMap();
+      if (sourceMap !== null) {
+          applySourceMap(file, sourceMap.toString());
       }
 
       file.contents = new Buffer(code);

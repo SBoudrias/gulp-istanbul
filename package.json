@@ -1,6 +1,6 @@
 {
   "name": "gulp-istanbul",
-  "version": "0.10.3",
+  "version": "1.0.0",
   "description": "Istanbul unit test coverage plugin for gulp.",
   "keywords": [
     "gulpplugin",
@@ -32,11 +32,13 @@
     "istanbul": "^0.4.0",
     "istanbul-threshold-checker": "^0.1.0",
     "lodash": "^4.0.0",
-    "through2": "^2.0.0"
+    "through2": "^2.0.0",
+    "vinyl-sourcemaps-apply": "^0.2.1"
   },
   "devDependencies": {
     "gulp": "^3.6.2",
     "gulp-mocha": "^2.0.0",
+    "gulp-sourcemaps": "^1.6.0",
     "isparta": "^3.0.0",
     "jshint": "^2.5.0",
     "mocha": "^2.0.1",
