@@ -121,11 +121,13 @@ plugin.writeReports = function (opts) {
   opts = opts || {};
 
   var defaultDir = path.join(process.cwd(), 'coverage');
-  opts = _.defaults(opts, {
+  opts = _.defaultsDeep(opts, {
     coverageVariable: COVERAGE_VARIABLE,
     dir: defaultDir,
     reporters: [ 'lcov', 'json', 'text', 'text-summary' ],
-    reportOpts: { dir: opts.dir || defaultDir }
+    reportOpts: {
+      dir: opts.dir || defaultDir
+    }
   });
 
   var reporters = opts.reporters.map(function(reporter) {
