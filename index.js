@@ -16,6 +16,10 @@ var PluginError = gutil.PluginError;
 var PLUGIN_NAME = 'gulp-istanbul';
 var COVERAGE_VARIABLE = '$$cov_' + new Date().getTime() + '$$';
 
+function normalizePathSep(filepath) {
+  return filepath.replace(/\//g, path.sep);
+}
+
 var plugin = module.exports = function (opts) {
   opts = opts || {};
   _.defaults(opts, {
@@ -35,7 +39,7 @@ var plugin = module.exports = function (opts) {
           sourceMapWithCode: true,
           sourceContent: fileContents,
           sourceMapRoot: file.sourceMap.sourceRoot,
-          file: file.path
+          file: normalizePathSep(file.path)
         }
       });
     }
@@ -46,11 +50,12 @@ var plugin = module.exports = function (opts) {
       return cb(new PluginError(PLUGIN_NAME, 'streams not supported'));
     }
 
-    instrumenter.instrument(fileContents, file.path, function (err, code) {
+    var filepath = normalizePathSep(file.path);
+    instrumenter.instrument(fileContents, filepath, function (err, code) {
       if (err) {
         return cb(new PluginError(
           PLUGIN_NAME,
-          'Unable to parse ' + file.path + '\n\n' + err.message + '\n'
+          'Unable to parse ' + filepath + '\n\n' + err.message + '\n'
         ));
       }
 
@@ -72,7 +77,7 @@ var plugin = module.exports = function (opts) {
         if (covStubMatch !== null) {
           var covStub = JSON.parse(covStubMatch[0]);
           global[opts.coverageVariable] = global[opts.coverageVariable] || {};
-          global[opts.coverageVariable][file.path] = covStub;
+          global[opts.coverageVariable][path.resolve(filepath)] = covStub;
         }
       }
 
@@ -86,16 +91,16 @@ plugin.hookRequire = function (options) {
 
   istanbul.hook.unhookRequire();
   istanbul.hook.hookRequire(function (path) {
-    return !!fileMap[path];
+    return !!fileMap[normalizePathSep(path)];
   }, function (code, path) {
-    return fileMap[path];
+    return fileMap[normalizePathSep(path)];
   }, options);
 
   return through(function (file, enc, cb) {
     // If the file is already required, delete it from the cache otherwise the covered
     // version will be ignored.
     delete require.cache[path.resolve(file.path)];
-    fileMap[file.path] = file.contents.toString();
+    fileMap[normalizePathSep(file.path)] = file.contents.toString();
     return cb();
   });
 };
