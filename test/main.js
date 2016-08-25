@@ -291,6 +291,7 @@ describe('gulp-istanbul', function () {
           process.stdout.write = out;
           assert(fs.existsSync('./cov-foo'));
           assert(!fs.existsSync('./cov-foo/lcov.info'));
+          assert(!fs.existsSync('./cov-foo/coverage-final.json'));
           assert(fs.existsSync('./cov-foo/cobertura-coverage.xml'));
           process.stdout.write = out;
           done();

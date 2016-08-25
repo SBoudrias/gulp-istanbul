@@ -124,11 +124,11 @@ plugin.writeReports = function (opts) {
   opts = _.defaultsDeep(opts, {
     coverageVariable: COVERAGE_VARIABLE,
     dir: defaultDir,
-    reporters: [ 'lcov', 'json', 'text', 'text-summary' ],
     reportOpts: {
       dir: opts.dir || defaultDir
     }
   });
+  opts.reporters = opts.reporters || [ 'lcov', 'json', 'text', 'text-summary' ];
 
   var reporters = opts.reporters.map(function(reporter) {
     if (reporter.TYPE) Report.register(reporter);
