@@ -30,7 +30,7 @@
   "dependencies": {
     "gulp-util": "^3.0.1",
     "istanbul": "^0.4.0",
-    "istanbul-threshold-checker": "^0.1.0",
+    "istanbul-threshold-checker": "^0.2.1",
     "lodash": "^4.0.0",
     "through2": "^2.0.0",
     "vinyl-sourcemaps-apply": "^0.2.1"
