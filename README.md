@@ -42,6 +42,8 @@ gulp.task('test', ['pre-test'], function () {
 });
 ```
 
+**Note:** Version 4.x.x of `gulp-mocha` is not supported (see issue [#115](https://github.com/SBoudrias/gulp-istanbul/issues/115) for details). In this example, you should use `gulp-mocha` version 3.0.1 for the time being.
+
 #### Browser testing
 
 For browser testing, you'll need to write the files covered by istanbul in a directory from where you'll serve these files to the browser running the test. You'll also need a way to extract the value of the [coverage variable](#coveragevariable) after the test have runned in the browser.
