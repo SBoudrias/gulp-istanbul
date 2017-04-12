@@ -245,6 +245,34 @@ You can also specify one or more custom reporter objects as items in the array. 
 
 See also `require('istanbul').Report.getReportList()`
 
+##### reportOpts
+Type: `Object` (optional)
+```js
+{
+  dir: './coverage'
+}
+```
+
+You can also configure separate directory for each report.
+```js
+{
+  html: {
+     dir: './coverage/html',
+        watermarks: {
+            statements: [ 50, 80 ],
+            lines: [ 50, 80 ],
+            functions: [ 50, 80],
+            branches: [ 50, 80 ]
+        }
+    },
+    lcov: {dir: './coverage/lcov'},
+    lcovonly: {dir: './coverage/lcovonly'},
+    json: {dir: './coverage/json'},
+}
+```
+`watermarks` can be used to confgure the color of the HTML report. 
+Default colors are.. RED: below 50% coverage, YELLOW: 50-80% coverage, GREEN: above 80% 
+
 ##### coverageVariable
 Type: `String` (optional)
 Default: `'$$cov_' + new Date().getTime() + '$$'`
