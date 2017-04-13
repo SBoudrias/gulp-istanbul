@@ -257,7 +257,7 @@ You can also configure separate directory for each report.
 ```js
 {
   html: {
-     dir: './coverage/html',
+        dir: './coverage/html',
         watermarks: {
             statements: [ 50, 80 ],
             lines: [ 50, 80 ],
