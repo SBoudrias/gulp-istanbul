@@ -160,24 +160,44 @@ describe('gulp-istanbul', function () {
     });
   });
 
+  describe('.hookRunInThisContext()', function () {
+    it('clear covered files from require.cache', function (done) {
+      var stream = istanbul()
+        .pipe(istanbul.hookRunInThisContext())
+        .on('finish', function () {
+          require('./fixtures/test/vm-add');
+          assert.notEqual(addFunc, null);
+          done();
+        });
+      stream.write(libFile);
+      stream.end();
+    });
+  });
+
   describe('istanbul.summarizeCoverage()', function () {
 
     it('gets statistics about the test run', function (done) {
-      gulp.src([ 'test/fixtures/lib/*.js' ])
+      gulp.src([ 'test/fixtures/lib/global-*.js' ])
         .pipe(istanbul())
-        .pipe(istanbul.hookRequire())
+        .pipe(istanbul.hookRunInThisContext())
         .on('finish', function () {
-          process.stdout.write = function () {};
-          gulp.src([ 'test/fixtures/test/*.js' ])
-            .pipe(mocha())
-            .on('end', function () {
-              var data = istanbul.summarizeCoverage();
-              process.stdout.write = out;
-              assert.equal(data.lines.pct, 75);
-              assert.equal(data.statements.pct, 75);
-              assert.equal(data.functions.pct, 50);
-              assert.equal(data.branches.pct, 100);
-              done();
+          gulp.src(['test/fixtures/lib/*.js', '!test/fixtures/lib/global-*.js'])
+            .pipe(istanbul())
+            .pipe(istanbul.hookRequire())
+            .on('finish', function () {
+              process.stdout.write = function () {
+              };
+              gulp.src(['test/fixtures/test/*.js'])
+                .pipe(mocha())
+                .on('end', function () {
+                  var data = istanbul.summarizeCoverage();
+                  process.stdout.write = out;
+                  assert.equal(data.lines.pct, 75);
+                  assert.equal(data.statements.pct, 75);
+                  assert.equal(data.functions.pct, 50);
+                  assert.equal(data.branches.pct, 100);
+                  done();
+                });
             });
         });
     });
@@ -185,7 +205,7 @@ describe('gulp-istanbul', function () {
     it('allows inclusion of untested files', function (done) {
       var COV_VAR = 'untestedCovVar';
 
-      gulp.src([ 'test/fixtures/lib/*.js' ])
+      gulp.src([ 'test/fixtures/lib/*.js', '!test/fixtures/lib/global-*.js' ])
         .pipe(istanbul({
             coverageVariable: COV_VAR,
             includeUntested: true
@@ -193,7 +213,7 @@ describe('gulp-istanbul', function () {
         .pipe(istanbul.hookRequire())
         .on('finish', function () {
           process.stdout.write = function () {};
-          gulp.src([ 'test/fixtures/test/*.js' ])
+          gulp.src([ 'test/fixtures/test/*.js', '!test/fixtures/lib/global-*.js' ])
             .pipe(mocha())
             .on('end', function () {
               var data = istanbul.summarizeCoverage({
