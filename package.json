@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "gulp": "^3.6.2",
-    "gulp-mocha": "^3.0.1",
+    "gulp-mocha": "^4.0.0",
     "gulp-sourcemaps": "^2.2.0",
     "isparta": "^4.0.0",
     "jshint": "^2.5.0",
