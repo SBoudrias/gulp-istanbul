@@ -3,7 +3,7 @@
 var fs = require('fs');
 var assert = require('assert');
 var rimraf = require('rimraf');
-var gutil = require('gulp-util');
+var File = require('vinyl');
 var gulp = require('gulp');
 var istanbul = require('../');
 var isparta = require('isparta');
@@ -26,7 +26,7 @@ describe('gulp-istanbul', function () {
   describe('istanbul()', function () {
     beforeEach(function () {
       this.stream = istanbul();
-      libFile = new gutil.File({
+      libFile = new File({
         path: 'test/fixtures/lib/add.js',
         cwd: 'test/',
         base: 'test/fixtures/lib',
@@ -48,7 +48,7 @@ describe('gulp-istanbul', function () {
     });
 
     it('throw when receiving a stream', function (done) {
-      var srcFile = new gutil.File({
+      var srcFile = new File({
         path: path.join('test', 'fixtures', 'lib', 'add.js'),
         cwd: 'test/',
         base: 'test/fixtures/lib',
@@ -65,7 +65,7 @@ describe('gulp-istanbul', function () {
     });
 
     it('handles invalid JS files', function (done) {
-      var srcFile = new gutil.File({
+      var srcFile = new File({
         path: path.join('test', 'fixtures', 'lib', 'add.js'),
         cwd: 'test/',
         base: 'test/fixtures/lib',
@@ -84,7 +84,7 @@ describe('gulp-istanbul', function () {
       var sourceMapStream = initStream.pipe(this.stream);
       sourceMapStream.on('data', function (file) {
         assert(file.sourceMap !== undefined);
-        assert.equal(file.sourceMap.file, file.path);
+        assert.equal(file.sourceMap.file, file.path.replace(/\\/g, '/'));
         done();
       });
 
