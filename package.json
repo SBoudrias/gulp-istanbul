@@ -28,10 +28,10 @@
     "test": "mocha -R spec"
   },
   "dependencies": {
-    "gulp-util": "^3.0.1",
     "istanbul": "^0.4.0",
     "istanbul-threshold-checker": "^0.2.1",
     "lodash": "^4.0.0",
+    "plugin-error": "^0.1.2",
     "through2": "^2.0.0",
     "vinyl-sourcemaps-apply": "^0.2.1"
   },
@@ -42,7 +42,8 @@
     "isparta": "^4.0.0",
     "jshint": "^2.5.0",
     "mocha": "^4.0.0",
-    "rimraf": "^2.2.8"
+    "rimraf": "^2.2.8",
+    "vinyl": "^2.1.0"
   },
   "license": "MIT"
 }

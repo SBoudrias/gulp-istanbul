@@ -3,7 +3,7 @@
 var fs = require('fs');
 var assert = require('assert');
 var rimraf = require('rimraf');
-var gutil = require('gulp-util');
+var Vinyl = require('vinyl');
 var gulp = require('gulp');
 var istanbul = require('../');
 var isparta = require('isparta');
@@ -26,7 +26,7 @@ describe('gulp-istanbul', function () {
   describe('istanbul()', function () {
     beforeEach(function () {
       this.stream = istanbul();
-      libFile = new gutil.File({
+      libFile = new Vinyl({
         path: 'test/fixtures/lib/add.js',
         cwd: 'test/',
         base: 'test/fixtures/lib',
@@ -48,7 +48,7 @@ describe('gulp-istanbul', function () {
     });
 
     it('throw when receiving a stream', function (done) {
-      var srcFile = new gutil.File({
+      var srcFile = new Vinyl({
         path: path.join('test', 'fixtures', 'lib', 'add.js'),
         cwd: 'test/',
         base: 'test/fixtures/lib',
@@ -65,7 +65,7 @@ describe('gulp-istanbul', function () {
     });
 
     it('handles invalid JS files', function (done) {
-      var srcFile = new gutil.File({
+      var srcFile = new Vinyl({
         path: path.join('test', 'fixtures', 'lib', 'add.js'),
         cwd: 'test/',
         base: 'test/fixtures/lib',
