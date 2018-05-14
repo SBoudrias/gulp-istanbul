@@ -213,7 +213,7 @@ You can pass individual configuration to a reporter.
   dir: './coverage',
   reporters: [ 'lcovonly', 'json', 'text', 'text-summary', CustomReport ],
   reportOpts: {
-    lcov: {dir: 'lcovonly', file: 'lcov.info'}
+    lcov: {dir: 'lcovonly', file: 'lcov.info'},
     json: {dir: 'json', file: 'converage.json'}
   },
   coverageVariable: 'someVariable'
