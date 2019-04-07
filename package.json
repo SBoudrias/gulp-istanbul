@@ -41,7 +41,7 @@
     "gulp-sourcemaps": "^2.2.0",
     "isparta": "^4.0.0",
     "jshint": "^2.5.0",
-    "mocha": "^5.0.0",
+    "mocha": "^6.1.1",
     "rimraf": "^2.2.8",
     "vinyl": "^2.1.0"
   },
