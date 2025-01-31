@@ -1,4 +1,4 @@
-gulp-istanbul [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][depstat-image]][depstat-url]
+gulp-istanbul [![NPM version][npm-image]][npm-url]
 ===========================
 
 [Istanbul][istanbul] unit test coverage plugin for [gulp][gulp].
